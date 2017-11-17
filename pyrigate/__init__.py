@@ -19,8 +19,7 @@ __license__ = 'MIT'
 
 def all_versions():
     return 'pyrigate v{0}, Python {1}, Raspberry Pi {2}'\
-        .format(pyrigate.version(),
-                '.'.join([str(v) for v in sys.version_info[:3]]),
+        .format(__version__, '.'.join([str(v) for v in sys.version_info[:3]]),
                 '?')
 
 
