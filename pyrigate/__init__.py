@@ -3,10 +3,6 @@
 
 """Core module for pyrigate."""
 
-__version__ = '0.1.0'
-__author__ = 'Alexander Asp Bock'
-__license__ = 'MIT'
-
 import datetime
 # import RPi.GPIO as gpio
 import logging
@@ -15,6 +11,10 @@ import pyrigate.config
 import pyrigate.mail
 import schedule
 import sys
+
+__version__ = '0.1.0'
+__author__ = 'Alexander Asp Bock'
+__license__ = 'MIT'
 
 
 def all_versions():
