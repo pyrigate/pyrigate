@@ -23,10 +23,8 @@ def all_versions():
                 '?')
 
 
-def load_settings():
-    """Load and initialise pyrigate settings."""
-    settings = pyrigate.config.Settings()
-
+def setup_logging(settings):
+    """Setup logging."""
     if settings['logging']:
         try:
             os.mkdir(settings['log_dir'])
@@ -39,7 +37,12 @@ def load_settings():
         logging.basicConfig(filename=log_file_full,
                             format=settings['log_format'], level=logging.INFO)
 
+
+def load_settings():
+    """Load and initialise pyrigate settings."""
+    settings = pyrigate.config.Settings()
     settings['suffix'] = '...'
+    setup_logging(settings)
 
     return settings
 
