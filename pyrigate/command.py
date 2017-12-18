@@ -66,6 +66,17 @@ class CommandInterpreter(cmd.Cmd, object):
             for config in configs:
                 pyrigate.output("    * {0}", config['name'])
 
+    def do_list(self, line):
+        """List a configuration."""
+        args = self.split_args(line)
+
+        if expect_args('list', args, 1):
+            config = next((c for c in pyrigate.get_configs()
+                           if c['name'] == args[0]), None)
+
+            if config is not None:
+                config.list()
+
     def do_select(self, line):
         """Select the plant configuration to use."""
         args = self.split_args(line)

@@ -52,6 +52,13 @@ class Configuration(object):
         for attr in defaults:
             self._mapping[attr] = config.get(attr, defaults[attr])
 
+    def list(self):
+        print("{0:<20} {1:>20}".format('Name', self._mapping['name']))
+
+        for k, v in self._mapping.items():
+            if k != 'name':
+                print("{0:<20} {1:>20}".format(k.title(), v))
+
 
 class Settings(Configuration):
     """Light-weight settings class.
