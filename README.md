@@ -3,6 +3,9 @@
 Water your plants with an automated irrigation system! This is an ongoing
 project under development.
 
+**DISCLAIMER**: I am not an electrical engineer or anything of the sort, use
+the instructions and code at your own risk.
+
 ## Installation
 
 Clone the repository and run:
