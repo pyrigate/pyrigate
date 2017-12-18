@@ -76,7 +76,7 @@ class Settings(Configuration):
                       '(%(module)s.%(funcName)s)',
         'log_dir': './logs',
         'warn_at_water_level': 0.1,
-        'update': True,
+        'status_updates': True,
         'email': {
             'subscribers': ['albo.developer@gmail.com'],
             'port': 8080
