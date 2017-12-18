@@ -52,7 +52,7 @@ def load_configs():
     configs = []
 
     for item in os.listdir('pyrigate/configs'):
-        if item == '__init__.py' or item.endswith('.pyc'):
+        if item == '__init__.py' or not item.endswith('.py'):
             continue
 
         name, ext = os.path.splitext(item)
