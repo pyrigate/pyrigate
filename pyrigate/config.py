@@ -3,8 +3,20 @@
 
 """Generic configuration class for watering and settings."""
 
+import functools
 import importlib
 import pyrigate
+
+
+def configurable(config, setting):
+    """Return a function that only gets called if a setting is enabled."""
+    def decorator(func):
+        @functools.wraps(func)
+        def _configurable(*args, **kwargs):
+            if config[setting]:
+                func(*args, **kwargs)
+
+    return decorator
 
 
 class Configuration(object):
