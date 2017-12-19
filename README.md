@@ -8,9 +8,10 @@ the instructions and code at your own risk.
 
 ## Installation
 
-Clone the repository and run:
+Clone the repository and run the install script.
 
 ```bash
+$ git clone https://github.com/MisanthropicBit/pyrigate
 $ python setup.py install
 ```
 
