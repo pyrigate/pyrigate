@@ -96,7 +96,7 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def emptyline(self):
         """Do not repeat the last command, just prompt the user again."""
-        return
+        pass
 
     def default(self, line):
         """Handle unknown commands."""
