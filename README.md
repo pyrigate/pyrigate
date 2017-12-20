@@ -6,6 +6,10 @@ project under development.
 **DISCLAIMER**: I am not an electrical engineer or anything of the sort, use
 the instructions and code at your own risk.
 
+Progress pic:
+
+![Progress pic](/coming_soon.png)
+
 ## Installation
 
 Clone the repository and run the install script.
