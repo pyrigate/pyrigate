@@ -23,7 +23,7 @@ def parse_commandline():
 
     """
 
-    return docopt.docopt(options, version='pyrigate v' + pyrigate.__version__)
+    return docopt.docopt(options, version=pyrigate.all_versions())
 
 
 if __name__ == '__main__':

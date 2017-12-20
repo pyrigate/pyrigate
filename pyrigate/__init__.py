@@ -215,9 +215,6 @@ def quit():
 
 def run(args):
     """Runner function for pyrigate."""
-    # if args['-v'] or args['--version']:
-    #     sys.exit(all_versions())
-
     pyrigate.start()
     pyrigate.schedule_tasks()
     pyrigate.log('Running pyrigate')
