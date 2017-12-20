@@ -85,6 +85,11 @@ class CommandInterpreter(cmd.Cmd, object):
             pyrigate.output("Selected plant configuration '{0}'"
                             .format(args[0]))
 
+    def do_specs(self, line):
+        """Print the Raspberry Pi's specifications."""
+        for key, value in pyrigate.rpi_specs().items():
+            print("{0:<20} {1}".format(key, value))
+
     def do_quit(self, line):
         """Quit pyrigate."""
         raise KeyboardInterrupt
