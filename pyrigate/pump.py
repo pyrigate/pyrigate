@@ -32,10 +32,11 @@ class WaterPump(object):
             raise ValueError("Unknown unit: '{0}'".format(unit))
 
     def __init__(self, pin, flow_rate, water_level_sensor=None):
-        self._level = 0
         self.pin = pin
         self.flow_rate = flow_rate
         self.water_level_sensor = water_level_sensor
+
+        # This pin is going to output something (controlling the pump)
         gpio.setup(pin, gpio.OUT)
 
     @property
@@ -45,8 +46,7 @@ class WaterPump(object):
             # No sensor attached, cannot read the water level
             return -1
         else:
-            # return self.water_level_sensor.read()
-            return self._level
+            return self.water_level_sensor.read()
 
     @property
     def pin(self):
@@ -72,42 +72,32 @@ class WaterPump(object):
             m = re.match('(\d+(\.\d+)?)\s*([A-Za-z]+/[A-Za-z]+)', value)
 
             if m:
-                self._flow_rate = WaterPump.convert_flowrate(float(m.group(1)),
-                                                             m.group(3))
+                self._flow_rate = Pump.convert_flowrate(float(m.group(1)),
+                                                        m.group(3))
             else:
                 raise ValueError("Unrecognised flow rate format: '{0}'"
                                  .format(value))
 
     def activate(self):
         """Activate the pump."""
-        gpio.output(self.pin, False)
+        gpio.output(self.pin, gpio.HIGH)
 
     def deactivate(self):
         """Deactivate the pump."""
-        gpio.output(self.pin, True)
+        gpio.output(self.pin, gpio.LOW)
 
     def pump(self, amount):
-        """Pump the given amount of water."""
-        if self.level <= 0:
-            return
-
-        self.activate()
-        time.sleep(amount / self.flow_rate)
-        self.deactive()
-
-        self._level -= amount
+        """Pump some amount of water."""
+        self.pump_timed(float(amount) / self.flow_rate)
 
     def pump_timed(self, duration):
-        """Pump water for a given amount of seconds."""
+        """Pump water for some seconds."""
         if self.level <= 0:
             return
 
         self.activate()
         time.sleep(duration)
         self.deactive()
-
-        # TODO: Use a water level sensor instead
-        self._level -= duration * self.flow_rate
 
     def __repr__(self):
         return "{0}(pin={1}, flow_rate={2} mL/s)"\
