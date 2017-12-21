@@ -80,25 +80,13 @@ class Settings(Configuration):
 
     """
 
-    _DEFAULT_SETTINGS = {
-        'prefix': '💦',
-        'verbosity': 1,
-        'logging': True,
-        'log_format': '[%(asctime)s] %(levelname)s: %(message)s '
-                      '(%(module)s.%(funcName)s)',
-        'log_dir': './logs',
-        'warn_at_water_level': 0.1,
-        'status_updates': True,
-        'email': {
-            'subscribers': ['albo.developer@gmail.com'],
-            'port': 8080
-        }
-    }
-
     def __init__(self):
         self.load()
 
     def load(self):
         """Load a settings file."""
+        default_settings =\
+            importlib.import_module('pyrigate.default_settings').settings
         settings = importlib.import_module('pyrigate.settings').settings
-        self._set_values(settings, Settings._DEFAULT_SETTINGS)
+
+        self._set_values(settings, default_settings)
