@@ -43,16 +43,14 @@ class CommandInterpreter(cmd.Cmd, object):
         pyrigate.load_settings()
         pyrigate.output('Reloaded settings')
 
-    def test_mail(self, line):
+    def do_test_mail(self, line):
         """Test the mail system by sending a mail to the given address."""
-        _, args = line
-        names = self.get_names()
-
-        if expect_args('test_mail', args, names['test_mail'][0]):
-            pyrigate.output("Sending mail to '{0}'".format(args[1]))
-            pyrigate.mail.send_mail('Test', 'pyrigate@localhost.com', args[1],
-                                    'This is a test mail sent from pyrigate',
-                                    [])
+        pyrigate.output("Sending mail to 'localhost'")
+        pyrigate.output("Start debug server 'sudo python2.7 -m smtpd -c"
+                        " DebuggingServer -n localhost:25' to see result")
+        pyrigate.mail.send_mail('Test', 'pyrigate@localhost.com',
+                                'pyrigate@test.com',
+                                'This is a test mail sent from pyrigate', [])
 
     def do_configs(self, line):
         """Print currently loaded plant configurations."""
