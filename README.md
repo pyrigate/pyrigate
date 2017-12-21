@@ -23,12 +23,12 @@ $ python setup.py install
 
 Below is a diagram of the current hardware setup and a full list of parts.
 
-* [Relay]() (prevents current flyback that could fry the Raspberry Pi board)
-* [Water pump]()
-* [Tubes]()
-* [Water tank]()
-* [Moisture sensor]() (optional)
-* [Water level sensor]() (optional)
+* Relay (prevents current flyback that could fry the Raspberry Pi board)
+* [5-12V self-priming water pump](https://www.ebay.com/itm/172845971977)
+* [4mm silicone tube](https://www.ebay.com/itm/142324532992)
+* Water tank
+* Moisture sensor (optional)
+* Water level sensor (optional)
 
 ## TODO
 
