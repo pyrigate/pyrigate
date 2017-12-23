@@ -21,7 +21,8 @@ def encode_attachement(attachment, ctype):
         with open(attachment, 'rb') as fh:
             attachment = MIMEImage(fh.read(), _subtype=subtype)
     else:
-        pyrigate.error(ValueError, '')
+        pyrigate.error(ValueError, "Unsupported attachment type '{0}'"
+                       .format(maintype))
 
     attachment.add_header('Content-Disposition', 'attachment',
                           filename=attachment)
@@ -45,7 +46,8 @@ def send_mail(subject, sender, receivers, message, attachments=[],
         ctype, encoding = mimetypes.guess_type(filename)
 
         if ctype is None or encoding is not None:
-            pyrigate.error(ValueError, "")
+            pyrigate.error(ValueError, "Failed to guess mimetype of '{0}'"
+                           .format(attachment))
 
         mime.attach(encode_attachement(attachment, ctype))
 
