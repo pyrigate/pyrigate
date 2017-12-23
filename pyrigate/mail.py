@@ -28,8 +28,13 @@ def encode_attachement(attachment, ctype):
     return attachment
 
 
-def send_mail(subject, sender, receivers, message, attachments=[]):
-    """Send an email, possibly with attachments."""
+def send_mail(subject, sender, receivers, message, attachments=[],
+              server=None, port=None):
+    """Send an email, possibly with attachments.
+
+    If server or port are not specified, use the values from the settings file.
+
+    """
     mime = MIMEText(message) if not attachments else MIMEMultipart()
     mime['Subject'] = subject
     mime['From'] = sender
@@ -45,10 +50,12 @@ def send_mail(subject, sender, receivers, message, attachments=[]):
         mime.attach(encode_attachement(attachment, ctype))
 
     smtp = None
+    server = pyrigate.settings['email']['server'] if server is None else server
+    port = pyrigate.settings['email']['port'] if port is None else port
 
     try:
-        smtp = smtplib.SMTP('smtp.gmail.com', pyrigate.settings.email.port)
-        smtp.starttls()
+        smtp = smtplib.SMTP(server, port)
+        # smtp.starttls()
         smtp.sendmail(sender, receivers, mime.as_string())
     finally:
         if smtp:

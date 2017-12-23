@@ -34,8 +34,11 @@ settings = {
         # Send a warning email about low water levels to these emails
         'subscribers': [],
 
+        # SMTP server to use
+        'server': 'localhost',
+
         # Port through which to connect to the server
-        'port': 8080,
+        'port': 25,
     },
 
     # A list of all connected pumps. Requires at least a specified connecting
