@@ -100,7 +100,7 @@ class CommandInterpreter(cmd.Cmd, object):
         """Handle unknown commands."""
         command, args = self.split_command(line)
 
-        args = "" if len(args) == 1\
+        args = "" if not args\
             else " with argument(s) {0}".format(", ".join(args))
 
         pyrigate.output("Unrecognised command '{0}'{1}".format(command, args))
