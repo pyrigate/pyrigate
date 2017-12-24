@@ -6,6 +6,8 @@
 import functools
 import importlib
 import pyrigate
+import settings
+import default_settings
 
 
 def configurable(config, setting):
@@ -87,8 +89,4 @@ class Settings(Configuration):
 
     def load(self):
         """Load a settings file."""
-        default_settings =\
-            importlib.import_module('pyrigate.default_settings').settings
-        settings = importlib.import_module('pyrigate.settings').settings
-
-        self._set_values(settings, default_settings)
+        self._set_values(settings.settings, default_settings.settings)
