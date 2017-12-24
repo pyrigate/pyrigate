@@ -27,6 +27,7 @@ Below is a diagram of the current hardware setup and a full list of parts.
 * [5-12V self-priming water pump](https://www.ebay.com/itm/172845971977)
 * [4mm silicone tube](https://www.ebay.com/itm/142324532992)
 * Water tank
+* Jumper wires
 * Moisture sensor (optional)
 * Water level sensor (optional)
 
