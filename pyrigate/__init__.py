@@ -8,6 +8,7 @@ import datetime
 import logging
 import os
 import pyrigate.config
+from pyrigate.config import configurable
 import pyrigate.mail
 import re
 import schedule
@@ -100,26 +101,10 @@ def all_versions():
                 specs['version'], specs['model'])
 
 
-def setup_logging(settings):
-    """Setup logging."""
-    if settings['logging']:
-        try:
-            os.mkdir(settings['log_dir'])
-        except OSError:
-            pass
-
-        # Generate a new log file and set up logging
-        log_file = '{0}_pyrigate.log'.format(datetime.datetime.now())
-        log_file_full = os.path.join(settings['log_dir'], log_file)
-        logging.basicConfig(filename=log_file_full,
-                            format=settings['log_format'], level=logging.INFO)
-
-
 def load_settings():
     """Load and initialise pyrigate settings."""
     settings = pyrigate.config.Settings()
     settings['suffix'] = '...'
-    setup_logging(settings)
 
     return settings
 
@@ -143,6 +128,22 @@ def load_configs():
 # Global settings and plant configurations
 settings = load_settings()
 configs = load_configs()
+
+
+@configurable(settings, 'logging')
+def setup_logging(settings):
+    """Setup logging."""
+    print("Logging is enabled")
+    try:
+        os.mkdir(settings['log_dir'])
+    except OSError:
+        pass
+
+    # Generate a new log file and set up logging
+    log_file = '{0}_pyrigate.log'.format(datetime.datetime.now())
+    log_file_full = os.path.join(settings['log_dir'], log_file)
+    logging.basicConfig(filename=log_file_full,
+                        format=settings['log_format'], level=logging.INFO)
 
 
 def get_configs():
@@ -185,8 +186,7 @@ def start():
     pyrigate.log('Starting pyrigate')
     # gpio.setmode(gpio.BCM)
 
-    pyrigate.log('Loading settings')
-    load_settings()
+    setup_logging(settings)
 
     pyrigate.log('Loading plant configurations')
     pyrigate.load_configs()
@@ -197,6 +197,7 @@ def start():
         pyrigate.log("Loaded config for '{0}'", config['name'])
 
 
+@configurable(settings, 'status_updates')
 def send_status_report():
     pyrigate.output('TODO: Send status report')
 

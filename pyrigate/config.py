@@ -14,7 +14,9 @@ def configurable(config, setting):
         @functools.wraps(func)
         def _configurable(*args, **kwargs):
             if config[setting]:
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
+
+        return _configurable
 
     return decorator
 
