@@ -97,7 +97,7 @@ class Pump(object):
 
         self.activate()
         time.sleep(duration)
-        self.deactive()
+        self.deactivate()
 
     def __repr__(self):
         return "{0}(pin={1}, flow_rate={2} mL/s)"\
