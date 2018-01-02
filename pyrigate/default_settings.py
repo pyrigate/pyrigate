@@ -40,15 +40,16 @@ settings = {
 
         # Port through which to connect to the server
         'port': 25,
+
+        # Use SSL encryption when sending emails
+        'use_ssl': True
     },
 
     # A list of all connected pumps. Requires at least a specified connecting
     # GPIO pin and a flow rate
-    'pumps': [
-        {
-            'name': 'main',
-            'pin': 7,
-            'flow_rate': '1.2L/min'
-        }
-    ]
+    'pumps': [{
+        'name': 'main',
+        'pin': 7,
+        'flow_rate': '1.2L/min'
+    }]
 }
