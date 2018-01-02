@@ -7,12 +7,13 @@ import re
 import time
 
 
+# Unit conversion mapping to normalise flow rates to ml/s
 _UNIT_CONVERSIONS = {
     'l': 1000.,
     'cl': 100.,
     'dl': 10.,
-    'hour': 3600.,
-    'min': 60.,
+    'hour': 1./3600.,
+    'min': 1./60.,
     'second': 1.
 }
 
@@ -26,10 +27,10 @@ class Pump(object):
         volume_unit, time_unit = unit.split('/')
 
         try:
-            return flow_rate * _UNIT_CONVERSIONS[volume_unit.lower()] /\
+            return flow_rate * _UNIT_CONVERSIONS[volume_unit.lower()] *\
                 _UNIT_CONVERSIONS[time_unit.lower()]
         except KeyError:
-            raise ValueError("Unknown unit: '{0}'".format(unit))
+            raise ValueError("Unknown/unsupported unit: '{0}'".format(unit))
 
     def __init__(self, pin, flow_rate, water_level_sensor=None):
         self.pin = pin
