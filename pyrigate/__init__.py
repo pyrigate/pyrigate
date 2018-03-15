@@ -150,6 +150,11 @@ def get_configs():
     return configs
 
 
+def get_pump(name):
+    """Get a pump by name."""
+    return settings['pumps'][name]
+
+
 def _internal_log(logger, exception, msg, *args, **kwargs):
     """Internal, multi-purpose logging function."""
     if kwargs.get('verbosity', 1) > settings['verbosity'] and not exception:
