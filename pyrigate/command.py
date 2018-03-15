@@ -48,9 +48,25 @@ class CommandInterpreter(cmd.Cmd, object):
         pyrigate.output("Sending mail to 'localhost'")
         pyrigate.output("Start debug server 'sudo python2.7 -m smtpd -c"
                         " DebuggingServer -n localhost:25' to see result")
-        pyrigate.mail.send_mail('Test', 'pyrigate@localhost.com',
-                                'pyrigate@test.com',
-                                'This is a test mail sent from pyrigate', [])
+
+    def do_pump(self, line):
+        """Pump a specfic amount (dl, cm, ml etc.)."""
+        args = self.split_args(line)
+        pyrigate.get_pump(args[0]).pump(0.2)
+
+    def do_water_level(self, line):
+        """Query the water tank's current level."""
+        args = self.split_args(line)
+        lvl = pyrigate.get_pump(args[0]).level
+
+        if lvl == -1:
+            pyrigate.output("No water tank detected, cannot read water level")
+        else:
+            pyrigate.output("Current water level is {0}".format(lvl))
+
+    def do_settings(self, line):
+        """List current settings."""
+        pyrigate.settings.list()
 
     def do_configs(self, line):
         """Print currently loaded plant configurations."""
