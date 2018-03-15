@@ -46,9 +46,10 @@ settings = {
 
     # A list of all connected pumps. Requires at least a specified connecting
     # GPIO pin and a flow rate
-    'pumps': [{
-        'name': 'main',
-        'pin': 7,
-        'flow_rate': '1.2L/min'
-    }]
+    'pumps': {
+        'main': {
+            'pin': 7,
+            'flow_rate': '1.2L/min'
+        }
+    }
 }
