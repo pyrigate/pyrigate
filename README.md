@@ -48,3 +48,5 @@ There are many similar projects which were an inspiration for this project.
 * [Aquaponics](https://github.com/matthewh415/PiPonics)
 * [Solar-powered water bot](https://github.com/mistylackie/solar-water-bot)
 * [pleasetakecareofmyplant](https://github.com/tylerjaywood/pleasetakecareofmyplant)
+* [Plant Friends](http://dicksonchow.com/plant-friends/)
+* [GreenPiThumb](https://mtlynch.io/greenpithumb/)
