@@ -2,9 +2,9 @@
 
 """Water pump controller class."""
 
-import RPi.GPIO as gpio
 import re
 import time
+import pyrigate.gpio as gpio
 
 
 # Unit conversion mapping to normalise flow rates to ml/s
@@ -38,7 +38,7 @@ class Pump(object):
         self.water_level_sensor = water_level_sensor
 
         # This pin is going to output something (controlling the pump)
-        gpio.setup(pin, gpio.OUT)
+        gpio.setup(pin, gpio.OUTPUT)
 
     @property
     def level(self):

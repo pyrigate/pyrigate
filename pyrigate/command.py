@@ -3,16 +3,30 @@
 """Interpreter class for user-entered commands."""
 
 import cmd
-import pyrigate
 import shlex
+
+import pyrigate
+import pyrigate.mail
+from pyrigate.logging import output
+from pyrigate.settings import get_settings
+
+
+def print_dict(dictionary, indent=1):
+    """Recursively print a dictionary."""
+    for key, value in dictionary.items():
+        if isinstance(value, dict):
+            print("{0}: {1}".format(key, "\n"))
+            print_dict(value, indent=indent+1)
+        else:
+            print("{0}: {1}".format(key, value))
 
 
 def expect_args(command, args, count):
     """Check that a given command is given the argument count is expects."""
     if len(args) != count:
-        pyrigate.output("Command '{0}' expected {1}", command,
-                        "{0} argument(s)".format(count) if count > 0
-                        else "no arguments")
+        output("Command '{0}' expected {1}", command,
+               "{0} argument(s)".format(count) if count > 0
+               else "no arguments")
         return False
 
     return True
@@ -36,23 +50,41 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def do_version(self, line):
         """Print pyrigate, python and raspberry pi versions."""
-        pyrigate.output(pyrigate.all_versions())
+        output(pyrigate.all_versions())
 
     def do_reload(self, line):
         """Reload user settings."""
-        pyrigate.load_settings()
-        pyrigate.output('Reloaded settings')
+        get_settings().reload()
+        output('Reloaded settings')
 
     def do_test_mail(self, line):
         """Test the mail system by sending a mail to the given address."""
-        pyrigate.output("Sending mail to 'localhost'")
-        pyrigate.output("Start debug server 'sudo python2.7 -m smtpd -c"
-                        " DebuggingServer -n localhost:25' to see result")
+        settings = get_settings()
+
+        output("Sending mail to 'localhost'")
+        output("From: {0}", settings['email']['sender'])
+        output("To  : {0}", ", ".join(settings['email']['subscribers']))
+
+        output("Start debug server 'sudo python2.7 -m smtpd -c"
+               " DebuggingServer -n localhost:25' to see result")
+
+        try:
+            pyrigate.mail.send_mail(
+                'Test',
+                'pyrigate@gmail.com',
+                ['albo.developer@gmail.com'],
+                'Subject: Test\nThis is a test mail sent from pyrigate',
+                port=25
+            )  # , attachments=['coming_soon.png'])
+        except TimeoutError:
+            output("Operation timed out...")
 
     def do_pump(self, line):
         """Pump a specfic amount (dl, cm, ml etc.)."""
         args = self.split_args(line)
-        pyrigate.get_pump(args[0]).pump(0.2)
+
+        if expect_args('pump', args, 2):
+            pyrigate.get_pump(args[0]).pump(args[1])
 
     def do_water_level(self, line):
         """Query the water tank's current level."""
@@ -60,25 +92,26 @@ class CommandInterpreter(cmd.Cmd, object):
         lvl = pyrigate.get_pump(args[0]).level
 
         if lvl == -1:
-            pyrigate.output("No water tank detected, cannot read water level")
+            output("No water tank detected, cannot read water level")
         else:
-            pyrigate.output("Current water level is {0}".format(lvl))
+            output("Current water level is {0}".format(lvl))
 
     def do_settings(self, line):
         """List current settings."""
-        pyrigate.settings.list()
+        settings = get_settings()
+        settings.list()
 
     def do_configs(self, line):
         """Print currently loaded plant configurations."""
         configs = pyrigate.get_configs()
 
         if not configs:
-            pyrigate.output('No configurations loaded')
+            output('No configurations loaded')
         else:
-            pyrigate.output('Found {0} configuration(s):', len(configs))
+            output('Found {0} configuration(s):', len(configs))
 
             for config in configs:
-                pyrigate.output("    * {0}", config['name'])
+                output("    * {0}", config['name'])
 
     def do_list(self, line):
         """List a configuration."""
@@ -96,8 +129,8 @@ class CommandInterpreter(cmd.Cmd, object):
         args = self.split_args(line)
 
         if expect_args('select', args, 1):
-            pyrigate.output("Selected plant configuration '{0}'"
-                            .format(args[0]))
+            output("Selected plant configuration '{0}'"
+                   .format(args[0]))
 
     def do_specs(self, line):
         """Print the Raspberry Pi's specifications."""
@@ -119,4 +152,4 @@ class CommandInterpreter(cmd.Cmd, object):
         args = "" if not args\
             else " with argument(s) {0}".format(", ".join(args))
 
-        pyrigate.output("Unrecognised command '{0}'{1}".format(command, args))
+        output("Unrecognised command '{0}'{1}".format(command, args))

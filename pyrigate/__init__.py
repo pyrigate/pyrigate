@@ -3,16 +3,16 @@
 
 """Core module for pyrigate."""
 
-import datetime
-# import RPi.GPIO as gpio
-import logging
 import os
-import pyrigate.config
-from pyrigate.config import configurable
-import pyrigate.mail
 import re
 import schedule
 import sys
+
+import pyrigate
+import pyrigate.gpio as gpio
+from pyrigate.config import configurable, Configuration
+from pyrigate.logging import setup_logging, error, log, output
+from pyrigate.settings import get_settings
 
 __version__ = '0.1.0'
 __author__ = 'Alexander Asp Bock'
@@ -101,49 +101,23 @@ def all_versions():
                 specs['version'], specs['model'])
 
 
-def load_settings():
-    """Load and initialise pyrigate settings."""
-    settings = pyrigate.config.Settings()
-    settings['suffix'] = '...'
-
-    return settings
-
-
 def load_configs():
     """Load all configuration files found at the given path."""
     configs = []
 
-    for item in os.listdir('pyrigate/configs'):
-        if item == '__init__.py' or not item.endswith('.py'):
-            continue
+    for dirpath, _, filenames in os.walk('configs'):
+        for config in filenames:
+            _, ext = os.path.splitext(config)
 
-        name, ext = os.path.splitext(item)
-        config = pyrigate.config.Configuration('pyrigate.configs.' + name)
-
-        configs.append(config)
+            if ext[1:] == Configuration.extension():
+                configs.append(Configuration(os.path.join(dirpath, config)))
 
     return configs
 
 
 # Global settings and plant configurations
-settings = load_settings()
+settings = get_settings()
 configs = load_configs()
-
-
-@configurable(settings, 'logging')
-def setup_logging(settings):
-    """Setup logging."""
-    print("Logging is enabled")
-    try:
-        os.mkdir(settings['log_dir'])
-    except OSError:
-        pass
-
-    # Generate a new log file and set up logging
-    log_file = '{0}_pyrigate.log'.format(datetime.datetime.now())
-    log_file_full = os.path.join(settings['log_dir'], log_file)
-    logging.basicConfig(filename=log_file_full,
-                        format=settings['log_format'], level=logging.INFO)
 
 
 def get_configs():
@@ -155,67 +129,44 @@ def get_pump(name):
     return settings['pumps'][name]
 
 
-def _internal_log(logger, exception, msg, *args, **kwargs):
-    """Internal, multi-purpose logging function."""
-    if kwargs.get('verbosity', 1) > settings['verbosity'] and not exception:
-        return
-
-    fmsg = "{0} {1}{2}".format(settings['prefix'], msg, settings['suffix'])
-
-    if settings['logging']:
-        logger(msg, *args, **kwargs)
-
-    print(fmsg.format(*args, **kwargs))
-
-    if exception:
-        raise exception(msg.format(*args, **kwargs))
-
-
-def output(msg, *args, **kwargs):
-    """Output a message to the console without any logging."""
-    print(msg.format(*args, **kwargs))
-
-
-def log(msg, *args, **kwargs):
-    """Log a message."""
-    _internal_log(logging.info, None, msg, *args, **kwargs)
-
-
-def error(exception, msg, *args, **kwargs):
-    """Log a message then raise an exception."""
-    _internal_log(logging.error, exception, msg, *args, **kwargs)
-
-
 def start():
     """Start pyrigate."""
-    pyrigate.log('Starting pyrigate')
-    # gpio.setmode(gpio.BCM)
+    log('Starting pyrigate')
+
+    if gpio.mocked():
+        log('Not on a raspberry pi, gpio functions are being mocked')
+    else:
+        code = gpio.setup()
+
+        if code != gpio.SETUP_OK:
+            error('Failed to setup up gpio pins (code: {0})', code)
+
+        gpio.setmode(gpio.BCM)
 
     setup_logging(settings)
+    log('Loading plant configurations')
 
-    pyrigate.log('Loading plant configurations')
     pyrigate.load_configs()
-    pyrigate.log('Loaded {0} plant configuration(s)', len(get_configs()),
-                 verbosity=2)
+    log('Loaded {0} plant configuration(s)', len(get_configs()),
+        verbosity=2)
 
     for config in configs:
-        pyrigate.log("Loaded config for '{0}'", config['name'])
+        log("Loaded config for '{0}'", config['name'])
 
 
 @configurable(settings, 'status_updates')
 def send_status_report():
-    pyrigate.output('TODO: Send status report')
+    output('TODO: Send status report')
 
 
 def schedule_tasks():
     """Schedule status reports, watering plans etc."""
-    if pyrigate.settings['status_updates']:
-        schedule.every().saturday.at('10:00').do(send_status_report)
+    schedule.every().saturday.at('10:00').do(send_status_report)
 
 
 def quit():
     """Quit pyrigate."""
-    # gpio.cleanup()
+    gpio.cleanup()
     log("Quitting pyrigate")
 
 
@@ -223,7 +174,8 @@ def run(args):
     """Runner function for pyrigate."""
     pyrigate.start()
     pyrigate.schedule_tasks()
-    pyrigate.log('Running pyrigate')
+    log('Running pyrigate')
+    output("Type 'help' for information")
     interpreter = pyrigate.command.CommandInterpreter()
 
     try:
