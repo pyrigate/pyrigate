@@ -1,0 +1,9 @@
+{
+    "description": "Watering settings for Habanero chili plants.",
+    "name":        "Habanero",
+    "scheme":      "auto",
+    "amount":      "0.1dl",
+    "frequency":   2,
+    "per":         "day",
+    "times":       ["09:00", "20:00"]
+}
