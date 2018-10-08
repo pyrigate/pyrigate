@@ -51,3 +51,5 @@ There are many similar projects which were an inspiration for this project.
 * [pleasetakecareofmyplant](https://github.com/tylerjaywood/pleasetakecareofmyplant)
 * [Plant Friends](http://dicksonchow.com/plant-friends/)
 * [GreenPiThumb](https://mtlynch.io/greenpithumb/)
+* [GardenPi](https://spin.atomicobject.com/2014/06/28/raspberry-pi-gardening/)
+* [MyHydroPi](https://github.com/dombold/MyHydroPi)
