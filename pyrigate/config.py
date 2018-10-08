@@ -75,18 +75,5 @@ class Configuration(object):
             if k != 'name':
                 print("{0:<20} {1:>20}".format(k.title(), v))
 
-
-class Settings(Configuration):
-    """Light-weight settings class.
-
-    Its main purpose is to provide sensible defaults when certain setting are
-    not found.
-
-    """
-
-    def __init__(self):
-        self.load()
-
-    def load(self):
-        """Load a settings file."""
-        self._set_values(settings.settings, default_settings.settings)
+        for k, v in self._config.items():
+            print("{0:<20} {1:>20}".format(k, v))

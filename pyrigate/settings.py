@@ -1,55 +1,141 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""pyrigate settings."""
+"""Settings class for users."""
+
+import importlib
+
+import pyrigate
+from pyrigate.pump import Pump
+from pyrigate.default_settings import settings as defaults
+# from pyrigate.logging import error
+from pyrigate.user_settings import user_settings
 
 
-settings = {
-    # Prefix used for pyrigate console output
-    'prefix': '💦 🌱 ',
+class Settings(object):
+    """Light-weight settings class for general pyrigate settings.
 
-    # Degree of status output, higher means more and 0 silences all output
-    'verbosity': 1,
+    Allows for dot access to settings:
+    >>> settings.email.subscribers
+    'me@mail.org'
 
-    # Whether or not to log system status
-    'logging': False,
+    If the nested attributes are not available, a default or None is returned.
+    """
 
-    # Logging format. Default displays as:
-    # '[2006-02-08 22:20:02] INFO: Error message (pyrigate.function)'
-    'log_format': '[%(asctime)s] %(levelname)s: %(message)s '
-                  '(%(module)s.%(funcName)s)',
-
-    # Logging directory
-    'log_dir': './logs',
-
-    # Send a warning when water levels are below this level (in deciliter)
-    'warn_at_water_level': 0.1,
-
-    # If True, sends status updates each week to the addresses listed in
-    # email.subscribers
-    'status_updates': True,
-
-    # Email subconfiguration
-    'email': {
-        # Send a warning email about low water levels to these emails
-        'subscribers': [],
-
-        # SMTP server to use
-        'server': 'localhost',
-
-        # Port through which to connect to the server
-        'port': 25,
-
-        # Use SSL encryption when sending emails
-        'use_ssl': True
-    },
-
-    # A list of all connected pumps. Requires at least a specified connecting
-    # GPIO pin and a flow rate
-    'pumps': {
-        'main': {
-            'pin': 7,
-            'flow_rate': '1.2L/min'
-        }
+    # Minimum required parameters for specific settings
+    _REQUIRED_PARAMS = {
+        'pumps': frozenset([
+            'pin',
+            'flow_rate'
+        ]),
+        'email': frozenset([
+            'sender',
+            'subscribers',
+            'server'
+        ])
     }
-}
+
+    def __init__(self):
+        super().__init__()
+        self.load(user_settings, defaults)
+
+    @property
+    def deprecated(self):
+        """Parameters that have been marked as deprecated."""
+        return {}
+
+    @property
+    def future(self):
+        """Parameters that will be available in the future."""
+        return {
+            'warn_at_water_level',
+            'status_frequency'
+        }
+
+    @property
+    def handlers(self):
+        return {
+            'pumps': self.set_pumps,
+            'email': self.set_email
+        }
+
+    def _set_mapping(self, name, mapping):
+        """Autogenerate a property."""
+        self._settings[name] = mapping
+
+    def is_required(self, param):
+        """Return True if the parameter is required."""
+        pass
+
+    def set_pumps(self, pumps):
+        """Handler for pump settings."""
+        _pumps = {}
+
+        for pump_name in pumps:
+            _pumps[pump_name] = Pump(pump_name,
+                                     pumps[pump_name]['pin'],
+                                     pumps[pump_name]['flow_rate'])
+
+        self._set_mapping('pumps', _pumps)
+
+    def set_email(self, email):
+        """Handler for email settings."""
+        # for setting in ('sender', 'server'):
+        #     if setting not in email:
+        #         error(AttributeError,
+        #               "Missing '{0}' in email "
+        #               "configuration".format(setting))
+
+        # if not email.get('subscribers', None):
+        #     error(AttributeError,
+        #           "Missing or empty 'subscribers' in email "
+        #           "configuration")
+
+        _email = {}
+
+        for key in email:
+            _email[key] = email.get(key, defaults['email'][key])
+
+        self._set_mapping('email', _email)
+
+    def load(self, settings, defaults):
+        """Load user settings from pyrigate.user_settings.py."""
+        self._settings = {}
+
+        for setting in defaults:
+            # if setting in self.deprecated:
+            #     pyrigate.output("Setting '{0}' is deprecated", setting)
+
+            # if setting in self.future:
+            #     pyrigate.output("Setting '{0}' will become available in the "
+            #                     "future", setting)
+
+            if setting in self.handlers:
+                self.handlers[setting](settings[setting])
+            else:
+                self._settings[setting] = settings.get(setting,
+                                                       defaults[setting])
+
+    def reload(self):
+        """Reload settings."""
+        importlib.reload(pyrigate.user_settings)
+        self.load(user_settings, defaults)
+
+    def list(self):
+        """Print all current settings to the console."""
+        for k, v in self._settings.items():
+            print("{0}: {1}".format(k, v))
+
+    def __getitem__(self, key):
+        return self._settings.get(key, None)
+
+    def __setitem__(self, key, value):
+        self._settings[key] = value
+
+
+_settings = Settings()
+
+
+def get_settings():
+    """Get global pyrigate settings."""
+    return _settings
