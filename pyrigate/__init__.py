@@ -94,11 +94,16 @@ def rpi_specs():
 
 def all_versions():
     """Return a string with the current pyrigate, Python and RPi versions."""
+    msg = 'pyrigate v{0}, Python {1}, Raspberry Pi '
     specs = rpi_specs()
 
-    return 'pyrigate v{0}, Python {1}, Raspberry Pi {2} ({3})'\
-        .format(__version__, '.'.join([str(v) for v in sys.version_info[:3]]),
-                specs['version'], specs['model'])
+    if gpio.mocked():
+        msg += '(mocked)'
+    else:
+        msg += '{2} ({3})'.format(specs['version'], specs['model'])
+
+    return msg.format(__version__,
+                      '.'.join([str(v) for v in sys.version_info[:3]]))
 
 
 def load_configs():
