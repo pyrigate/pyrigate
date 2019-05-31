@@ -1,9 +1,10 @@
 {
-    "description": "Watering settings for Habanero chili plants.",
-    "name":        "Habanero",
+    "name":        "Serrano",
+    "description": "Watering settings for Serrano chili plants.",
     "scheme":      "auto",
-    "amount":      "0.1dl",
+    "amount":      "0.1dlx",
     "frequency":   2,
     "per":         "day",
-    "times":       ["09:00", "20:00"]
+    "times":       ["09:00", "20:00"],
+    "url":         "https://en.wikipedia.org/wiki/Serrano_pepper"
 }
