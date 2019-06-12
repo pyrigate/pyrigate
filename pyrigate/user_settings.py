@@ -3,8 +3,13 @@
 
 """pyrigate user settings."""
 
+import schema
+import sys
 
-user_settings = {
+from pyrigate.validation import settings_schema
+
+
+values = {
     # Prefix used for pyrigate console output
     'prefix': '💦 🌱 ',
 
@@ -59,3 +64,14 @@ user_settings = {
         }
     }
 }
+
+
+##########################################################
+# !!! USERS SHOULD NOT MODIFY ANYTHING BELOW THIS LINE !!!
+##########################################################
+try:
+    settings = settings_schema.validate(values)
+except schema.SchemaError as ex:
+    errors = [e for e in ex.autos + ex.errors if e]
+    print('Failed to load settings: {0}'.format(' '.join(errors)))
+    sys.exit(1)
