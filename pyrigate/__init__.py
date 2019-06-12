@@ -5,14 +5,9 @@
 
 import os
 import re
-import schedule
 import sys
 
-import pyrigate
 import pyrigate.gpio as gpio
-from pyrigate.config import configurable, Configuration
-from pyrigate.logging import setup_logging, error, log, output
-from pyrigate.settings import get_settings
 
 __version__ = '0.1.0'
 __author__ = 'Alexander Asp Bock'
@@ -104,94 +99,3 @@ def all_versions():
 
     return msg.format(__version__,
                       '.'.join([str(v) for v in sys.version_info[:3]]))
-
-
-def load_configs():
-    """Load all configuration files found at the given path."""
-    configs = []
-
-    for dirpath, _, filenames in os.walk('configs'):
-        for config in filenames:
-            _, ext = os.path.splitext(config)
-
-            if ext[1:] == Configuration.extension():
-                configs.append(Configuration(os.path.join(dirpath, config)))
-
-    return configs
-
-
-# Global settings and plant configurations
-settings = get_settings()
-configs = load_configs()
-
-
-def get_configs():
-    return configs
-
-
-def get_pump(name):
-    """Get a pump by name."""
-    return settings['pumps'][name]
-
-
-def start():
-    """Start pyrigate."""
-    log('Starting pyrigate')
-
-    if gpio.mocked():
-        log('Not on a raspberry pi, gpio functions are being mocked')
-    else:
-        code = gpio.setup()
-
-        if code != gpio.SETUP_OK:
-            error('Failed to setup up gpio pins (code: {0})', code)
-
-        gpio.setmode(gpio.BCM)
-
-    setup_logging(settings)
-    log('Loading plant configurations')
-
-    pyrigate.load_configs()
-    log('Loaded {0} plant configuration(s)', len(get_configs()),
-        verbosity=2)
-
-    for config in configs:
-        log("Loaded config for '{0}'", config['name'])
-
-
-@configurable(settings, 'status_updates')
-def send_status_report():
-    output('TODO: Send status report')
-
-
-def schedule_tasks():
-    """Schedule status reports, watering plans etc."""
-    schedule.every().saturday.at('10:00').do(send_status_report)
-
-
-def quit():
-    """Quit pyrigate."""
-    gpio.cleanup()
-    log("Quitting pyrigate")
-
-
-def run(args):
-    """Runner function for pyrigate."""
-    pyrigate.start()
-    pyrigate.schedule_tasks()
-    log('Running pyrigate')
-    output("Type 'help' for information")
-    interpreter = pyrigate.command.CommandInterpreter()
-
-    try:
-        while True:
-            # TODO: Monitor plants, water them etc.
-            interpreter.cmdloop()
-    except KeyboardInterrupt:
-        pass
-    except Exception as e:
-        # Catch any other error, log it and reraise it
-        pyrigate.error(None, e.message)
-        raise
-    finally:
-        pyrigate.quit()

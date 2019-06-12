@@ -5,9 +5,7 @@
 
 import docopt
 import pyrigate
-import pyrigate.command
-import pyrigate.config
-import pyrigate.mail
+from pyrigate.main_controller import MainController
 
 
 def parse_commandline():
@@ -26,5 +24,5 @@ def parse_commandline():
     return docopt.docopt(options, version=pyrigate.all_versions())
 
 
-def main():
-    pyrigate.run(parse_commandline())
+if __name__ == "__main__":
+    MainController().run()
