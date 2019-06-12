@@ -17,7 +17,8 @@ def get_version(filename):
 requirements = [
     'colorise',
     'docopt',
-    'schedule'
+    'schedule',
+    'schema'
 ]
 
 setup(
