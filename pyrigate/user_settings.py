@@ -20,9 +20,8 @@ values = {
     'logging': True,
 
     # Logging format. Default displays as:
-    # '[2006-02-08 22:20:02] INFO: Error message (pyrigate.function)'
-    'log_format': '[%(asctime)s] %(levelname)s: %(message)s '
-                  '(%(module)s.%(funcName)s)',
+    # '[2006-02-08 22:20:02] INFO: This is the error message'
+    'log_format': '[%(asctime)s] %(levelname)s: %(message)s ',
 
     # Logging directory relative to the parent of pyrigate's top-level package
     'log_dir': './logs',
@@ -32,7 +31,7 @@ values = {
 
     # If True, send status updates to the addresses listed in email.subscribers
     # as dictated by 'status_frequency'
-    'status_updates': True,
+    'status_updates': False,
 
     # Send status updates with this frequency
     'status_frequency': 'weekly',
@@ -55,8 +54,8 @@ values = {
         'use_ssl': False
     },
 
-    # A list of all connected pumps. Requires at least a specified connecting
-    # GPIO pin and a flow rate
+    # A list of all connected pumps. Requires at least specifying the gpio pin
+    # and flow rate
     'pumps': {
         'main': {
             'pin': 7,
