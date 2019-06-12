@@ -1,42 +1,55 @@
 # -*- coding: utf-8 -*-
 
-"""Interpreter class for user-entered commands."""
+"""Interpreter for user-entered commands."""
 
 import cmd
+import colorise
+import importlib
 import shlex
 
 import pyrigate
+import pyrigate.gpio as gpio
 import pyrigate.mail
-from pyrigate.logging import output
-from pyrigate.settings import get_settings
+from pyrigate.log import output
+from pyrigate.user_settings import settings
 
 
-def print_dict(dictionary, indent=1):
-    """Recursively print a dictionary."""
-    for key, value in dictionary.items():
-        if isinstance(value, dict):
-            print("{0}: {1}".format(key, "\n"))
-            print_dict(value, indent=indent+1)
-        else:
-            print("{0}: {1}".format(key, value))
+def print_dict(dictionary,
+               msg_format='{0}{{bold}}{1:<{2}}{{reset}}{3}{4:>{5}}',
+               indent='    ', buffer=' ' * 5):
+    """Recursively print a dictionary with indentation."""
+    def _print_dict(dictionary, msg_format, indent, lvl=0, buffer=' '):
+        l_indent = indent * lvl
 
+        # Find the max key and value widths for proper alignment
+        max_key_width = len(max(dictionary.keys(), key=len))
+        max_value_width = len(max(dictionary.values(),
+                              key=lambda v: len(str(v))))
 
-def expect_args(command, args, count):
-    """Check that a given command is given the argument count is expects."""
-    if len(args) != count:
-        output("Command '{0}' expected {1}", command,
-               "{0} argument(s)".format(count) if count > 0
-               else "no arguments")
-        return False
+        for key, value in dictionary.items():
+            if isinstance(value, dict):
+                colorise.fprint('{0}{{bold}}{1}{{reset}}'.format(l_indent,
+                                                                 key))
+                _print_dict(value, indent, lvl=lvl+1, buffer=buffer)
+            elif isinstance(value, list):
+                colorise.fprint(msg_format.format(l_indent, key, max_key_width,
+                                                  buffer, ', '.join(value),
+                                                  max_value_width))
+            else:
+                colorise.fprint(msg_format.format(l_indent, key, max_key_width,
+                                                  buffer, value,
+                                                  max_value_width))
 
-    return True
+    _print_dict(dictionary, msg_format, indent, buffer=buffer)
 
 
 class CommandInterpreter(cmd.Cmd, object):
+
     """Interpreter for user-entered commands."""
 
-    def __init__(self, prompt='> '):
+    def __init__(self, controller, prompt='> '):
         super(CommandInterpreter, self).__init__()
+        self._controller = controller
         self.prompt = prompt
 
     def split_command(self, line):
@@ -45,8 +58,32 @@ class CommandInterpreter(cmd.Cmd, object):
 
         return tokens[0], [] if len(tokens) == 1 else tokens[1:]
 
-    def split_args(self, line):
-        return shlex.split(line)
+    def expect_args(self, command_name, command, count):
+        """Check that a command is given the number of arguments it expects."""
+        args = shlex.split(command)
+
+        if len(args) != count:
+            if count == 0:
+                msg = "no arguments"
+            elif count == 1:
+                msg = '{0} argument'
+            else:
+                msg = '{0} arguments'
+
+            output("Command '{0}' expected {1}",
+                   command_name,
+                   msg.format(count))
+            return None
+
+        return args
+
+    def columnise(self, mapping):
+        """Print dictionary keys and values in two columns."""
+        max_width = len(max(mapping, key=len))
+
+        for key in mapping:
+            colorise.fprint('{{fg=white,bold}}{0:<{1}}:{{reset}} {2}'
+                            .format(key, max_width, mapping[key]))
 
     def do_version(self, line):
         """Print pyrigate, python and raspberry pi versions."""
@@ -54,56 +91,85 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def do_reload(self, line):
         """Reload user settings."""
-        get_settings().reload()
+        importlib.reload(pyrigate.user_settings)
         output('Reloaded settings')
 
     def do_test_mail(self, line):
         """Test the mail system by sending a mail to the given address."""
-        settings = get_settings()
+        if not settings['email']:
+            output('Please set email settings to send test mail')
+        elif not settings['email']['sender']:
+            output('Please set email.sender to send test mail')
+        elif not settings['email']['subscribers']:
+            output('Please set email.subscribers to send test mail')
+        else:
+            output("Sending mail to 'localhost'")
+            output("From: {0}", settings['email']['sender'])
+            output("To  : {0}", ", ".join(settings['email']['subscribers']))
+            output("Start debug server 'sudo python -m smtpd -c "
+                   "DebuggingServer -n localhost:25' to see result")
 
-        output("Sending mail to 'localhost'")
-        output("From: {0}", settings['email']['sender'])
-        output("To  : {0}", ", ".join(settings['email']['subscribers']))
-
-        output("Start debug server 'sudo python2.7 -m smtpd -c"
-               " DebuggingServer -n localhost:25' to see result")
-
-        try:
-            pyrigate.mail.send_mail(
-                'Test',
-                'pyrigate@gmail.com',
-                ['albo.developer@gmail.com'],
-                'Subject: Test\nThis is a test mail sent from pyrigate',
-                port=25
-            )  # , attachments=['coming_soon.png'])
-        except TimeoutError:
-            output("Operation timed out...")
+            try:
+                pyrigate.mail.send_mail(
+                    'Test',
+                    settings['email']['sender'],
+                    settings['email']['subscribers'],
+                    'Subject: Test\nThis is a test mail sent from pyrigate',
+                    server='localhost',
+                    port=settings['email']['port']
+                )
+            except TimeoutError:
+                output("Operation timed out...")
 
     def do_pump(self, line):
         """Pump a specfic amount (dl, cm, ml etc.)."""
-        args = self.split_args(line)
+        args = self.expect_args('pump', line, 2)
 
-        if expect_args('pump', args, 2):
-            pyrigate.get_pump(args[0]).pump(args[1])
+        if args:
+            pump = self._controller.get_pump(args[0])
+            cmd = args[1].lower()
 
-    def do_water_level(self, line):
-        """Query the water tank's current level."""
-        args = self.split_args(line)
-        lvl = pyrigate.get_pump(args[0]).level
+            if cmd == 'on':
+                pump.activate()
+                output("Pump '{0}' activated".format(pump.name))
+            elif cmd == 'off':
+                pump.deactivate()
+                output("Pump '{0}' deactivated".format(pump.name))
+            else:
+                pump.pump(args[1])
 
-        if lvl == -1:
-            output("No water tank detected, cannot read water level")
+    def do_pumps(self, line):
+        """Show all loaded pumps."""
+        if self._controller.pumps:
+            self.columnise(self._controller.pumps)
         else:
-            output("Current water level is {0}".format(lvl))
+            print('No pumps loaded')
+
+    def do_sensor(self, line):
+        """Query the value of a sensor."""
+        args = self.expect_args('sensor', line, 1)
+        sensor = self._controller.get_sensor(args[0])
+
+        if sensor:
+            output('Current value is {0} (analog: {1})'
+                   .format(sensor.read(), sensor.analog))
+        else:
+            output("No sensor called '{0}' registered".format(args[0]))
+
+    def do_sensors(self, line):
+        """."""
+        if self._controller.sensors:
+            self.columnise(self._controller.sensors)
+        else:
+            print('No sensors loaded')
 
     def do_settings(self, line):
         """List current settings."""
-        settings = get_settings()
-        settings.list()
+        print_dict(settings)
 
     def do_configs(self, line):
         """Print currently loaded plant configurations."""
-        configs = pyrigate.get_configs()
+        configs = self._controller.configs
 
         if not configs:
             output('No configurations loaded')
@@ -113,22 +179,26 @@ class CommandInterpreter(cmd.Cmd, object):
             for config in configs:
                 output("    * {0}", config['name'])
 
-    def do_list(self, line):
+    def do_config(self, line):
         """List a configuration."""
-        args = self.split_args(line)
+        args = self.expect_args('config', line, 1)
 
-        if expect_args('list', args, 1):
-            config = next((c for c in pyrigate.get_configs()
-                           if c['name'] == args[0]), None)
+        if args:
+            configs = self._controller.configs
+            config = next((c for c in configs if c['name'] == args[0]), None)
 
-            if config is not None:
-                config.list()
+            if config:
+                print(config)
+            else:
+                print("Unknown plant configuration '{0}'".format(args[0]))
 
     def do_select(self, line):
         """Select the plant configuration to use."""
-        args = self.split_args(line)
+        args = self.expect_args('select', line, 1)
 
-        if expect_args('select', args, 1):
+        if args:
+            self._controller.select_config(args[0])
+
             output("Selected plant configuration '{0}'"
                    .format(args[0]))
 
@@ -136,6 +206,35 @@ class CommandInterpreter(cmd.Cmd, object):
         """Print the Raspberry Pi's specifications."""
         for key, value in pyrigate.rpi_specs().items():
             print("{0:<20} {1}".format(key, value))
+
+    def do_read(self, line):
+        """Read a value from a gpio input pin."""
+        args = self.expect_args('read', line, 1)
+
+        if args:
+            if gpio.mocked():
+                output('Cannot read pin, gpio access is being mocked')
+            else:
+                pin = int(args[0])
+                output("Read value '{0}' from pin '{1}'", gpio.input(pin), pin)
+
+    def do_write(self, line):
+        """Write a HIGH or LOW value to a gpio output pin."""
+        args = self.expect_args('write', line, 2)
+
+        if args:
+            if gpio.mocked():
+                output('Cannot read pin, gpio access is being mocked')
+            else:
+                pin = int(args[0])
+                value = int(args[1])
+
+                if pin in (gpio.LOW, gpio.HIGH):
+                    output("Wrote '{0}' on pin '{1}'",
+                           gpio.output(pin, value), pin)
+                else:
+                    output("Output value must be either '{0}' or '{1}'",
+                           gpio.LOW, gpio.HIGH)
 
     def do_quit(self, line):
         """Quit pyrigate."""
