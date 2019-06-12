@@ -1,33 +1,40 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """Logging and output functions."""
 
+import colorise
 import datetime
 import logging
 import os
 from pathlib import Path
-from pyrigate.config import configurable
-from pyrigate.settings import settings
+import sys
+
+from pyrigate.decorators import configurable
+from pyrigate.user_settings import settings
 
 
 @configurable('logging')
-def setup_logging(settings):
+def setup_logging():
     """Setup logging."""
     log_dir = Path(settings['log_dir'])
 
     try:
         os.mkdir(log_dir)
+    except FileExistsError:
+        pass
     except OSError:
         error("Failed to create directory '{0}' for logging"
               .format(log_dir))
 
     log_format = settings['log_format']
-    log_file = '{0}_pyrigate.log'.format(datetime.now())
+    now = datetime.datetime.now()
+    log_file = '{0}_pyrigate.log'.format(now.strftime('%Y-%m-%d-%H-%M-%S'))
     log_file_path = log_dir / log_file
 
     logging.basicConfig(filename=log_file_path,
                         format=log_format,
-                        level=logging.INFO)
+                        level=logging.NOTSET)
 
 
 def _internal_log(log_func, exception, msg, *args, **kwargs):
@@ -40,7 +47,7 @@ def _internal_log(log_func, exception, msg, *args, **kwargs):
     if settings['logging']:
         log_func(msg, *args, **kwargs)
 
-    print(fmsg.format(*args, **kwargs))
+    colorise.fprint(fmsg.format(*args, **kwargs))
 
     if exception:
         raise exception(msg.format(*args, **kwargs))
@@ -48,12 +55,18 @@ def _internal_log(log_func, exception, msg, *args, **kwargs):
 
 def output(msg, *args, **kwargs):
     """Output a message to the console without any logging."""
-    print(msg.format(*args, **kwargs))
+    colorise.fprint(msg.format(*args, **kwargs))
 
 
 def log(msg, *args, **kwargs):
     """Log a message."""
     _internal_log(logging.info, None, msg, *args, **kwargs)
+
+
+def warn(msg, *args, **kwargs):
+    """Warn the user about something."""
+    colorise.fprint('{{fg=yellow,bold}}WARNING:{{reset}} {0}'
+                    .format(*args, **kwargs), file=sys.stderr)
 
 
 def error(exception, msg, *args, **kwargs):
