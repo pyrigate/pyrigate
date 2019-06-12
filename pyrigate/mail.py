@@ -10,8 +10,8 @@ import mimetypes
 import os
 import smtplib
 
-from pyrigate.logging import error, output
-from pyrigate.settings import get_settings
+from pyrigate.log import error, output
+from pyrigate.user_settings import settings
 
 
 def encode_attachment(attachment, ctype):
@@ -77,24 +77,29 @@ def send_mail(subject, sender, receivers, message, attachments=None,
     mime['Date'] = formatdate(localtime=True)
 
     smtp = None
-    settings = get_settings()
     server = server if server else settings['email']['server']
     port = port if port else settings['email']['port']
 
     try:
-        if settings['email']['use_ssl']:
-            smtp = smtplib.SMTP_SSL(server, port)
-        else:
+        if server == 'localhost':
+            # Open a connection and send a mail without any authentication if
+            # we are just sending to 'localhost'
             smtp = smtplib.SMTP(server, port)
-            smtp.ehlo()
-            smtp.starttls()
-            smtp.ehlo()
-
-        password = get_password()
-
-        if password:
-            smtp.login(sender, password)
             smtp.sendmail(sender, receivers, message)
+        else:
+            if settings['email']['use_ssl']:
+                smtp = smtplib.SMTP_SSL(server, port)
+            else:
+                smtp = smtplib.SMTP(server, port)
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+
+            password = get_password()
+
+            if password:
+                smtp.login(sender, password)
+                smtp.sendmail(sender, receivers, message)
     finally:
         if smtp:
             smtp.close()
