@@ -1,3 +1,4 @@
+colorise
 docopt
 schedule
 RPi.GPIO
