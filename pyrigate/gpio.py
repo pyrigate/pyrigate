@@ -1,11 +1,15 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 """GPIO control functions.
 
-Mocks all functions (no-ops) if we are not running on a raspberry pi. See
-https://sourceforge.net/projects/raspberry-gpio-python/ for details.
+Mocks all functions (functions become no-ops) if we are not running on a
+raspberry pi. See https://sourceforge.net/projects/raspberry-gpio-python/ for
+details.
 
 """
+
+from pyrigate.log import error, log
 
 try:
     from RPi.GPIO import *
@@ -75,3 +79,17 @@ except ImportError:
 
     def setwarnings(*args):
         pass
+
+
+def init():
+    """Initialise gpio functionality."""
+    if mocked():
+        log('Not on a raspberry pi, mocking GPIO functionality')
+    else:
+        code = setup()
+
+        if code != SETUP_OK:
+            error('Failed to setup up GPIO pins (code: {0})', code)
+
+        setmode(BCM)
+        log('GPIO interface initialised', verbosity=2)
