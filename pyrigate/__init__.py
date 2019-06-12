@@ -59,8 +59,8 @@ def rpi_specs():
 
     """
     specs = {k: 'unknown' for k in ('hardware', 'version', 'model')}
-    regexes = [('hardware', re.compile('^Hardware\s+:\s+(.+)$')),
-               ('revision', re.compile('^Revision\s+:\s+(.+)$'))]
+    regexes = [('hardware', re.compile(r'^Hardware\s+:\s+(.+)$')),
+               ('revision', re.compile(r'^Revision\s+:\s+(.+)$'))]
 
     if os.path.isfile('/proc/cpuinfo'):
         with open('/proc/cpuinfo', 'r') as fh:
