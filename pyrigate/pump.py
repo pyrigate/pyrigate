@@ -9,16 +9,17 @@ import pyrigate.gpio as gpio
 
 # Unit conversion mapping to normalise flow rates to ml/s
 _UNIT_CONVERSIONS = {
-    'l': 1000.,
-    'cl': 100.,
-    'dl': 10.,
-    'hour': 1./3600.,
-    'min': 1./60.,
+    'l':      1000.,
+    'cl':     100.,
+    'dl':     10.,
+    'hour':   1./3600.,
+    'min':    1./60.,
     'second': 1.
 }
 
 
 class Pump(object):
+
     """Water pump controller class."""
 
     @classmethod
@@ -32,7 +33,8 @@ class Pump(object):
         except KeyError:
             raise ValueError("Unknown/unsupported unit: '{0}'".format(unit))
 
-    def __init__(self, pin, flow_rate, water_level_sensor=None):
+    def __init__(self, name, pin, flow_rate, water_level_sensor=None):
+        self.name = name
         self.pin = pin
         self.flow_rate = flow_rate
         self.water_level_sensor = water_level_sensor
@@ -48,6 +50,14 @@ class Pump(object):
             return -1
         else:
             return self.water_level_sensor.read()
+
+    @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @property
     def pin(self):
@@ -70,7 +80,7 @@ class Pump(object):
         if type(value) in (int, float):
             self._flow_rate = value
         else:
-            m = re.match('(\d+(\.\d+)?)\s*([A-Za-z]+/[A-Za-z]+)', value)
+            m = re.match(r'(\d+(\.\d+)?)\s*([A-Za-z]+/[A-Za-z]+)', value)
 
             if m:
                 self._flow_rate = Pump.convert_flowrate(float(m.group(1)),
