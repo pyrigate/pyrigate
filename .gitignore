@@ -2,5 +2,10 @@
 *.sw[op]
 *.tasks
 *.html
+*.egg-info/
 .Python
+test_pump.py
+build/
+dist/
 logs/
+venv*/
