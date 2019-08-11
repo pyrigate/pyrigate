@@ -18,6 +18,7 @@ def parse_commandline():
                                 versions
         -v, --verbosity=<lvl>   Set the level of verbosity (output). Zero
                                 silences all output
+        -x, --no-load-configs   Do not load any configurations on start-up
 
     """
 
@@ -25,4 +26,4 @@ def parse_commandline():
 
 
 if __name__ == "__main__":
-    MainController().run()
+    MainController(parse_commandline()).run()

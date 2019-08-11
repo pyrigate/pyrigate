@@ -43,8 +43,9 @@ class MainController(object):
 
     """Main controller for pyrigate."""
 
-    def __init__(self):
-        """Initialise the controller."""
+    def __init__(self, args={}):
+        """Initialise the controller, possibly with commandline arguments."""
+        self._args = args
         self._configs = []
         self._pumps = {}
         self._sensors = {}
@@ -52,6 +53,9 @@ class MainController(object):
 
     def load_configs(self, config_path):
         """Load all configuration files found at the given path."""
+        if self._args['--no-load-configs']:
+            return
+
         log('Loading plant configurations')
         config_ext = PlantConfiguration.extension()
 
