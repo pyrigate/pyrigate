@@ -25,5 +25,9 @@ def parse_commandline():
     return docopt.docopt(options, version=pyrigate.all_versions())
 
 
-if __name__ == "__main__":
+def main():
     MainController(parse_commandline()).run()
+
+
+if __name__ == "__main__":
+    main()
