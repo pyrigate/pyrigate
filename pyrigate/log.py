@@ -14,6 +14,25 @@ from pyrigate.decorators import configurable
 from pyrigate.user_settings import settings
 
 
+class NewStyleFormatLogRecord(logging.LogRecord):
+
+    """Prefer using new-style string formatting."""
+
+    def getMessage(self):
+        msg = self.msg
+
+        if self.args:
+            if isinstance(self.args, dict):
+                msg = msg.format(**self.args)
+            else:
+                msg = msg.format(*self.args)
+
+        return msg
+
+
+logging.setLogRecordFactory(NewStyleFormatLogRecord)
+
+
 @configurable('logging')
 def setup_logging():
     """Setup logging."""

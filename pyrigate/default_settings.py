@@ -19,7 +19,7 @@ defaults = {
 
     # Logging format. Default displays as:
     # '[2006-02-08 22:20:02] INFO: This is the error message'
-    'log_format': '[%(asctime)s] %(levelname)s: %(message)s ',
+    'log_format': '[{asctime}] {levelname}: {message} ',
 
     # Logging directory relative to the parent of pyrigate's top-level package
     'log_dir': './logs',
