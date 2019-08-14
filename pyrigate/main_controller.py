@@ -73,8 +73,10 @@ class MainController(object):
                     except schema.SchemaError as ex:
                         errors = [e for e in ex.autos + ex.errors if e]
 
-                        log("Config '{0}': {{fg=red,bold}}✗{{reset}} "
-                            "(reason: {1})", full_path, ','.join(errors))
+                        log("Config '{0}' from '{1}': "
+                            "{{fg=red,bold}}✗{{reset}} "
+                            "(reason: {1})", config.name, full_path,
+                            ','.join(errors))
 
         log('Loaded {0} plant configuration(s)', len(self.configs),
             verbosity=2)
