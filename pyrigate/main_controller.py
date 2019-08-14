@@ -53,7 +53,7 @@ class MainController(object):
 
     def load_configs(self, config_path):
         """Load all configuration files found at the given path."""
-        if self._args['--no-load-configs']:
+        if '--no-load-configs' in self._args:
             return
 
         log('Loading plant configurations')
