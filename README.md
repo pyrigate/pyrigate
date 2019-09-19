@@ -1,5 +1,7 @@
 # pyrigate v0.1.0 💦🌱
 
+[![Supported python versions](https://img.shields.io/badge/python-3.4%20%7C%203.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://shields.io/)
+
 Water your plants with an automated irrigation system! This is an ongoing
 project under development.
 
