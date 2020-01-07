@@ -7,7 +7,7 @@ import importlib
 
 import pyrigate
 from pyrigate.pump import Pump
-from pyrigate.default_settings import settings as defaults
+from pyrigate.default_settings import default_settings
 # from pyrigate.logging import error
 from pyrigate.user_settings import user_settings
 
@@ -37,7 +37,7 @@ class Settings(object):
 
     def __init__(self):
         super().__init__()
-        self.load(user_settings, defaults)
+        self.load(user_settings, default_settings)
 
     @property
     def deprecated(self):
@@ -94,15 +94,15 @@ class Settings(object):
         _email = {}
 
         for key in email:
-            _email[key] = email.get(key, defaults['email'][key])
+            _email[key] = email.get(key, default_settings['email'][key])
 
         self._set_mapping('email', _email)
 
-    def load(self, settings, defaults):
+    def load(self, settings, default_settings):
         """Load user settings from pyrigate.user_settings.py."""
         self._settings = {}
 
-        for setting in defaults:
+        for setting in default_settings:
             # if setting in self.deprecated:
             #     pyrigate.output("Setting '{0}' is deprecated", setting)
 
@@ -113,13 +113,13 @@ class Settings(object):
             if setting in self.handlers:
                 self.handlers[setting](settings[setting])
             else:
-                self._settings[setting] = settings.get(setting,
-                                                       defaults[setting])
+                self._settings[setting] =\
+                    settings.get(setting, default_settings[setting])
 
     def reload(self):
         """Reload settings."""
         importlib.reload(pyrigate.user_settings)
-        self.load(user_settings, defaults)
+        self.load(user_settings, default_settings)
 
     def list(self):
         """Print all current settings to the console."""
