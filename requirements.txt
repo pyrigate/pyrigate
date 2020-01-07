@@ -1,4 +1,4 @@
-colorise
+colorise>=1.0.0
 docopt
 RPi.GPIO
 schedule
