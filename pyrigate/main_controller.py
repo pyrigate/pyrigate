@@ -7,7 +7,6 @@ import os
 from pathlib import Path
 import schedule
 import schema
-import threading
 
 import pyrigate
 import pyrigate.command
@@ -16,27 +15,9 @@ from pyrigate.config import PlantConfiguration
 from pyrigate.decorators import configurable
 from pyrigate.log import setup_logging, error, log, output
 from pyrigate.pump import Pump
+from pyrigate.schedule_thread import ScheduleThread
 from pyrigate.sensor import Sensor
 from pyrigate.user_settings import settings
-
-
-# Adapted from run_continuously at
-# https://github.com/mrhwick/schedule/blob/master/schedule/__init__.py
-class ScheduleThread(threading.Thread):
-
-    """Thread class for continuously running scheduled tasks."""
-
-    def __init__(self, interval, event):
-        self._interval = interval
-        self._event = event
-        super().__init__()
-
-    def run(self):
-        while True:
-            schedule.run_pending()
-
-            if self._event.wait(timeout=self._interval):
-                break
 
 
 class MainController(object):
