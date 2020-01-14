@@ -7,6 +7,10 @@ import json
 from pyrigate.validation import plant_configuration_schema
 
 
+class ConfigError(Exception):
+    pass
+
+
 class PlantConfiguration(object):
 
     """Light-weight configuration class for plants.

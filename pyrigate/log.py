@@ -58,17 +58,25 @@ def setup_logging():
 
 def _internal_log(log_func, exception, msg, *args, **kwargs):
     """Internal, multi-purpose logging function."""
-    if kwargs.get('verbosity', 1) > settings['verbosity'] and not exception:
+    verbosity = kwargs.pop('verbosity', settings['verbosity'])
+
+    if verbosity > settings['verbosity'] and not exception:
         return
 
-    fmsg = "{0} {1}{2}".format(settings['prefix'], msg, settings['suffix'])
+    should_raise = kwargs.pop('should_raise', False)
+    fmsg = "{0}{1} {2}{3}".format(
+        settings['prefix'],
+        ' {{fg=red;bold}}Error:{{reset}}' if exception else '',
+        msg,
+        settings['suffix']
+    )
 
     if settings['logging']:
         log_func(msg, *args, **kwargs)
 
     colorise.fprint(fmsg.format(*args, **kwargs))
 
-    if exception:
+    if exception and should_raise:
         raise exception(msg.format(*args, **kwargs))
 
 

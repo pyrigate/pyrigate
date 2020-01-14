@@ -3,6 +3,7 @@
 
 """Main controller for running the event loop and scheduling tasks."""
 
+import json
 import os
 from pathlib import Path
 import schedule
@@ -11,9 +12,10 @@ import schema
 import pyrigate
 import pyrigate.command
 import pyrigate.gpio as gpio
-from pyrigate.config import PlantConfiguration
+from pyrigate.config import ConfigError, PlantConfiguration
 from pyrigate.decorators import configurable
-from pyrigate.log import setup_logging, error, log, output
+from pyrigate.jobs import Job, StatusReportJob, WateringJob
+from pyrigate.log import setup_logging, error, log, output, warn
 from pyrigate.pump import Pump
 from pyrigate.schedule_thread import ScheduleThread
 from pyrigate.sensor import Sensor
@@ -21,20 +23,22 @@ from pyrigate.user_settings import settings
 
 
 class MainController(object):
-
     """Main controller for pyrigate."""
 
     def __init__(self, args={}):
         """Initialise the controller, possibly with commandline arguments."""
         self._args = args
-        self._configs = []
+        self._configs = {}
         self._pumps = {}
         self._sensors = {}
-        self._event = None
+        self._schedule_thread = None
+
+        if self._args['-v'] > 0:
+            settings['verbosity'] = self._args['-v']
 
     def load_configs(self, config_path):
         """Load all configuration files found at the given path."""
-        if '--no-load-configs' in self._args:
+        if self._args['--no-load-configs']:
             return
 
         log('Loading plant configurations')
@@ -48,19 +52,36 @@ class MainController(object):
                     try:
                         config = PlantConfiguration(full_path)
                         log("Config '{0}' from '{1}': "
-                            "{{fg=green,bold}}✔{{reset}}", config.name,
+                            "{{fg=green;bold}}✔{{reset}}", config.name,
                             full_path)
-                        self._configs.append(config)
+
+                        if config.name in self._configs:
+                            raise ConfigError(
+                                "Configuration with name '{}' already exists"
+                                .format(config.name)
+                            )
+
+                        self._configs[config.name] = config
                     except schema.SchemaError as ex:
                         errors = [e for e in ex.autos + ex.errors if e]
 
                         log("Config '{0}' from '{1}': "
-                            "{{fg=red,bold}}✗{{reset}} "
-                            "(reason: {1})", config.name, full_path,
+                            "{{fg=red;bold}}✗{{reset}} "
+                            "(reason: {2})", config.name, full_path,
                             ','.join(errors))
+                    except json.decoder.JSONDecodeError as ex:
+                        log("Config '{0}' from '{1}': "
+                            "{{fg=red;bold}}✗{{reset}} "
+                            "(reason: {2})", config.name, full_path,
+                            ex)
+                    except ConfigError as ex:
+                        error(ConfigError, str(ex))
+                        return False
 
         log('Loaded {0} plant configuration(s)', len(self.configs),
             verbosity=2)
+
+        return True
 
     def load_pumps(self):
         """Load all pumps from settings."""
@@ -90,7 +111,7 @@ class MainController(object):
     @property
     def pumps(self):
         """Return a list of all registered pumps."""
-        return self._pumps
+        return self._pumps.values()
 
     def get_pump(self, name):
         """Return a pump by name or None."""
@@ -109,14 +130,17 @@ class MainController(object):
         """Start the main controller and the event loop."""
         setup_logging()
         log('Starting pyrigate')
-        self.load_configs('./configs')
-        self.load_pumps()
-        self.load_sensors()
         gpio.init()
+
+        return self.load_configs('./configs')\
+            and self.load_pumps()\
+            and self.load_sensors()
 
     def run(self):
         """Run the main controller and accept user input."""
-        self.start()
+        if not self.start():
+            self.quit()
+            return
         # self.schedule_tasks()
 
         log('Running pyrigate')
@@ -145,7 +169,7 @@ class MainController(object):
         log('Quitting pyrigate')
 
     @configurable('status_updates')
-    def send_status_report():
+    def send_status_report(self):
         output('TODO: Send status report')
 
     def schedule_tasks(self):
@@ -157,33 +181,25 @@ class MainController(object):
         # Schedule according to the current plant configuration
         config = self.current_config
 
-        if config.scheme == 'auto':
-            # Water plants automatically based on a water humidity sensor
-            pass
-        elif config.scheme == 'schedule':
-            # Water plants at set intervals
-            job = getattr('saturday', schedule.every())
+        watering_job = WateringJob(config['scheme'])
+        watering_job.schedule()
+        report_job = StatusReportJob(settings)
+        report_job.schedule()
 
-            for timepoint in config.times:
-                job = job.at(timepoint)
-        elif config.scheme == 'periodically':
-            # Water plants periodically e.g. every Saturday at 9:00AM
-            pass
+        class TestJob(pyrigate.jobs.job.Job):
+            def schedule(self):
+                schedule.every(5).seconds.do(self.do)
 
-        def test_do():
-            print("Hello")
+            def do(self):
+                print('Hello')
 
-        job.do(test_do)
-        self._event = threading.Event()
-        self._schedule_thread = ScheduleThread(1, self._event)
+        self._schedule_thread = ScheduleThread(1)
+        self._schedule_thread.run()
 
         log("Scheduling configuration '{0}'".format(self.current_config.name),
             verbosity=2)
 
     def cancel_tasks(self):
         """Cancel all running plant monitoring tasks."""
-        if self._event:
-            self._event.set()
-
-            if self._schedule_thread:
-                self._schedule_thread.join()
+        if self._schedule_thread:
+            self._schedule_thread.cancel()
