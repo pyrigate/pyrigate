@@ -10,15 +10,16 @@ from pyrigate.main_controller import MainController
 
 def parse_commandline():
     options = """Usage:
-    pyrigate [-v=<lvl>] [--verbosity=<lvl>]
+    pyrigate [-v...] [-x | --no-load-configs]
 
     Options:
-        -h, --help              Display this help message
+        -h, --help              Display this help message.
         --version               Display the pyrigate, Python and Raspberry Pi
-                                versions
-        -v, --verbosity=<lvl>   Set the level of verbosity (output). Zero
-                                silences all output
-        -x, --no-load-configs   Do not load any configurations on start-up
+                                versions.
+        -v                      Increase verbosity level (output). Zero
+                                silences all output [default: 1]. Overrides the
+                                verbosity set in user settings.
+        -x, --no-load-configs   Do not load any configurations on start-up.
 
     """
 
