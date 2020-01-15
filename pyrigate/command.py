@@ -154,14 +154,14 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def do_sensor(self, line):
         """Query the value of a sensor."""
-        args = self.expect_args('sensor', line, 1)
-        sensor = self._controller.get_sensor(args[0])
+        arg = self.expect_args('sensor', line, 1)
+        sensor = self._controller.get_sensor(arg)
 
         if sensor:
             output('Current value is {0} (analog: {1})'
                    .format(sensor.read(), sensor.analog))
         else:
-            output("No sensor called '{0}' registered".format(args[0]))
+            output("No sensor called '{0}' registered".format(arg))
 
     def do_sensors(self, line):
         """."""
@@ -201,13 +201,12 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def do_select(self, line):
         """Select the plant configuration to use."""
-        args = self.expect_args('select', line, 1)
+        arg = self.expect_args('select', line, 1)
 
-        if args:
-            self._controller.select_config(args[0])
+        if arg:
+            self._controller.select_config(arg)
 
-            output("Selected plant configuration '{0}'"
-                   .format(args[0]))
+            output("Selected plant configuration '{0}'".format(arg))
 
     def do_specs(self, line):
         """Print the Raspberry Pi's specifications."""
@@ -216,13 +215,13 @@ class CommandInterpreter(cmd.Cmd, object):
 
     def do_read(self, line):
         """Read a value from a gpio input pin."""
-        args = self.expect_args('read', line, 1)
+        arg = self.expect_args('read', line, 1)
 
-        if args:
+        if arg:
             if gpio.mocked():
                 output('Cannot read pin, gpio access is being mocked')
             else:
-                pin = int(args[0])
+                pin = int(arg)
                 output("Read value '{0}' from pin '{1}'", gpio.input(pin), pin)
 
     def do_write(self, line):
