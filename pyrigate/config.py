@@ -4,6 +4,7 @@
 """Generic plant configuration class."""
 
 import json
+import os
 from pyrigate.validation import plant_configuration_schema
 
 
@@ -84,4 +85,4 @@ class PlantConfiguration(object):
             line = fmt.format(k, str(v), max_width)
             result.append(line)
 
-        return '\n'.join(result)
+        return os.linesep.join(result)
