@@ -82,7 +82,7 @@ class CommandInterpreter(cmd.Cmd, object):
                    msg.format(count))
             return None
 
-        return args
+        return args[0] if count == 1 else args
 
     def columnise(self, mapping):
         """Print dictionary keys and values in two columns."""
