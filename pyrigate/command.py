@@ -183,21 +183,20 @@ class CommandInterpreter(cmd.Cmd, object):
         else:
             output('Found {0} configuration(s):', len(configs))
 
-            for config in configs:
-                output("    * {0}", config['name'])
+            for config_name in configs:
+                output("    * {0}", config_name)
 
     def do_config(self, line):
         """List a configuration."""
-        args = self.expect_args('config', line, 1)
+        arg = self.expect_args('config', line, 1)
 
-        if args:
+        if arg:
             configs = self._controller.configs
-            config = next((c for c in configs if c['name'] == args[0]), None)
 
-            if config:
-                print(config)
+            if arg in configs:
+                colorise.fprint(str(configs[arg]))
             else:
-                print("Unknown plant configuration '{0}'".format(args[0]))
+                print("Unknown plant configuration '{0}'".format(arg))
 
     def do_select(self, line):
         """Select the plant configuration to use."""
