@@ -74,7 +74,7 @@ def _internal_log(log_func, exception, msg, *args, **kwargs):
     if settings['logging']:
         log_func(msg, *args, **kwargs)
 
-    colorise.fprint(fmsg.format(*args, **kwargs))
+    colorise.fprint(fmsg.format(*args, **kwargs), enabled=settings['colors'])
 
     if exception and should_raise:
         raise exception(msg.format(*args, **kwargs))
@@ -82,7 +82,7 @@ def _internal_log(log_func, exception, msg, *args, **kwargs):
 
 def output(msg, *args, **kwargs):
     """Output a message to the console without any logging."""
-    colorise.fprint(msg.format(*args, **kwargs))
+    colorise.fprint(msg.format(*args, **kwargs), enabled=settings['colors'])
 
 
 def log(msg, *args, **kwargs):
@@ -93,7 +93,8 @@ def log(msg, *args, **kwargs):
 def warn(msg, *args, **kwargs):
     """Warn the user about something."""
     colorise.fprint('{{fg=yellow,bold}}WARNING:{{reset}} {0}'
-                    .format(*args, **kwargs), file=sys.stderr)
+                    .format(*args, **kwargs), file=sys.stderr,
+                    enabled=settings['colors'])
 
 
 def error(exception, msg, *args, **kwargs):

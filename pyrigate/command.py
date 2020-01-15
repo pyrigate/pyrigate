@@ -28,17 +28,24 @@ def print_dict(dictionary,
 
         for key, value in dictionary.items():
             if isinstance(value, dict):
-                colorise.fprint('{0}{{bold}}{1}{{reset}}'.format(l_indent,
-                                                                 key))
+                colorise.fprint(
+                    '{0}{{bold}}{1}{{reset}}'.format(l_indent, key),
+                    enabled=settings['colors']
+                )
                 _print_dict(value, indent, lvl=lvl+1, buffer=buffer)
             elif isinstance(value, list):
-                colorise.fprint(msg_format.format(l_indent, key, max_key_width,
-                                                  buffer, ', '.join(value),
-                                                  max_value_width))
+                colorise.fprint(
+                    msg_format.format(l_indent, key, max_key_width,
+                                     buffer, ', '.join(value),
+                                     max_value_width),
+                    enabled=settings['colors']
+                )
             else:
-                colorise.fprint(msg_format.format(l_indent, key, max_key_width,
-                                                  buffer, value,
-                                                  max_value_width))
+                colorise.fprint(
+                    msg_format.format(l_indent, key, max_key_width,
+                                      buffer, value, max_value_width),
+                    enabled=settings['colors']
+                )
 
     _print_dict(dictionary, msg_format, indent, buffer=buffer)
 

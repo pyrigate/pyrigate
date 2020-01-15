@@ -24,6 +24,9 @@ defaults = {
     # Logging directory relative to the parent of pyrigate's top-level package
     'log_dir': './logs',
 
+    # Enable colored output to the console
+    'colors': True,
+
     # Send a warning when water levels are below this level
     'warn_at_water_level': '0.1dl',
 

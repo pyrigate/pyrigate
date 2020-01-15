@@ -31,6 +31,7 @@ settings_schema = Schema({
         Optional('logging',             default=False):    bool,
         Optional('log_format',          default=''):       str,
         Optional('log_dir',             default='./logs'): str,
+        Optional('colors',              default=True):     bool,
         Optional('warn_at_water_level', default=-1.0):     float,
         Optional('status_updates',      default=True):     bool,
         Optional('status_frequency',    default='weekly'): valid_frequency,
