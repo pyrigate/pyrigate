@@ -3,6 +3,7 @@
 
 """Class for running scheduled jobs in the background."""
 
+import schedule
 import threading
 
 
