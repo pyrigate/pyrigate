@@ -241,6 +241,21 @@ class CommandInterpreter(cmd.Cmd, object):
                     output("Output value must be either '{0}' or '{1}'",
                            gpio.LOW, gpio.HIGH)
 
+    def do_schedule(self, line):
+        """Start all scheduled jobs such as the current plant configuration.
+
+        > schedule [start | stop]
+
+        """
+        arg = self.expect_args('schedule', line, 1)
+
+        if arg == 'start':
+            self._controller.schedule_tasks()
+        elif arg == 'stop':
+            self._controller.cancel_tasks()
+        else:
+            output("Unknown arg '{}'".format(arg))
+
     def do_quit(self, line):
         """Quit pyrigate."""
         raise KeyboardInterrupt
