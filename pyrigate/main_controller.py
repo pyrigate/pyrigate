@@ -52,7 +52,7 @@ class MainController(object):
                     try:
                         config = PlantConfiguration(full_path)
                         log("Config '{0}' from '{1}': "
-                            "{{fg=green;bold}}✔{{reset}}", config.name,
+                            "{{fg=green,bold}}✔{{reset}}", config.name,
                             full_path)
 
                         if config.name in self._configs:
@@ -66,12 +66,12 @@ class MainController(object):
                         errors = [e for e in ex.autos + ex.errors if e]
 
                         log("Config '{0}' from '{1}': "
-                            "{{fg=red;bold}}✗{{reset}} "
+                            "{{fg=red,bold}}✗{{reset}} "
                             "(reason: {2})", config.name, full_path,
                             ','.join(errors))
                     except json.decoder.JSONDecodeError as ex:
                         log("Config '{0}' from '{1}': "
-                            "{{fg=red;bold}}✗{{reset}} "
+                            "{{fg=red,bold}}✗{{reset}} "
                             "(reason: {2})", config.name, full_path,
                             ex)
                     except ConfigError as ex:

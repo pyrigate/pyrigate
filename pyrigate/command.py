@@ -89,7 +89,7 @@ class CommandInterpreter(cmd.Cmd, object):
         max_width = len(max(mapping, key=len))
 
         for key in mapping:
-            colorise.fprint('{{fg=white,bold}}{0:<{1}}:{{reset}} {2}'
+            colorise.fprint('{{fg=white;bold}}{0:<{1}}:{{reset}} {2}'
                             .format(key, max_width, mapping[key]))
 
     def do_version(self, line):

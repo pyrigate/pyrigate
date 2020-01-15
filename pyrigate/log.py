@@ -77,7 +77,7 @@ def _internal_log(log_func, exception, msg, *args, **kwargs):
     should_raise = kwargs.pop('should_raise', False)
     fmsg = "{0}{1} {2}{3}".format(
         settings['prefix'],
-        ' {{fg=red;bold}}Error:{{reset}}' if exception else '',
+        ' {{fg=red,bold}}Error:{{reset}}' if exception else '',
         msg,
         settings['suffix']
     )
