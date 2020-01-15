@@ -103,9 +103,10 @@ def log(msg, *args, **kwargs):
 
 def warn(msg, *args, **kwargs):
     """Warn the user about something."""
-    colorise.fprint('{{fg=yellow,bold}}WARNING:{{reset}} {0}'
-                    .format(*args, **kwargs), file=sys.stderr,
-                    enabled=settings['colors'])
+    msg = msg.format(*args, **kwargs)
+
+    colorise.fprint('{{fg=yellow,bold}}WARNING:{{reset}} {0}'.format(msg),
+                    file=sys.stderr, enabled=settings['colors'])
 
 
 def error(exception, msg, *args, **kwargs):
