@@ -14,23 +14,28 @@ from pyrigate.decorators import configurable
 from pyrigate.user_settings import settings
 
 
-class NewStyleFormatLogRecord(logging.LogRecord):
+# Use new-style string formatting in logging calls. See the Python docs on the
+# logging cookbook for details:
+#
+# https://docs.python.org/3/howto/logging-cookbook.html#logging-cookbook
+class Message:
+    def __init__(self, fmt, args):
+        self.fmt = fmt
+        self.args = args
 
-    """Prefer using new-style string formatting."""
+    def __str__(self):
+        return self.fmt.format(*self.args)
 
-    def getMessage(self):
-        msg = self.msg
+class NewStyleFormatAdapter(logging.LoggerAdapter):
+    """Prefer using new-style string formatting for logging."""
 
-        if self.args:
-            if isinstance(self.args, dict):
-                msg = msg.format(**self.args)
-            else:
-                msg = msg.format(*self.args)
+    def __init__(self, logger, extra=None):
+        super().__init__(logger, extra or {})
 
-        return msg
-
-
-logging.setLogRecordFactory(NewStyleFormatLogRecord)
+    def log(self, level, msg, *args, **kwargs):
+        if self.isEnabledFor(level):
+            msg, kwargs = self.process(msg, kwargs)
+            self.logger._log(level, Message(msg, args), (), **kwargs)
 
 
 @configurable('logging')
@@ -51,9 +56,15 @@ def setup_logging():
     log_file = '{0}_pyrigate.log'.format(now.strftime('%Y-%m-%d-%H-%M-%S'))
     log_file_path = log_dir / log_file
 
+    # Set up the internal logging to use new-style formatting
     logging.basicConfig(filename=log_file_path,
                         format=log_format,
+                        style='{',
                         level=logging.NOTSET)
+
+
+# Create a logger object with our adapter to be used in this module
+logger = NewStyleFormatAdapter(logging.getLogger())
 
 
 def _internal_log(log_func, exception, msg, *args, **kwargs):
@@ -87,7 +98,7 @@ def output(msg, *args, **kwargs):
 
 def log(msg, *args, **kwargs):
     """Log a message."""
-    _internal_log(logging.info, None, msg, *args, **kwargs)
+    _internal_log(logger.info, None, msg, *args, **kwargs)
 
 
 def warn(msg, *args, **kwargs):
@@ -99,4 +110,4 @@ def warn(msg, *args, **kwargs):
 
 def error(exception, msg, *args, **kwargs):
     """Log a message then raise an exception."""
-    _internal_log(logging.error, exception, msg, *args, **kwargs)
+    _internal_log(logger.error, exception, msg, *args, **kwargs)
