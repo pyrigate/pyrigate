@@ -29,6 +29,7 @@ class MainController(object):
         """Initialise the controller, possibly with commandline arguments."""
         self._args = args
         self._configs = {}
+        self._current_config = None
         self._pumps = {}
         self._sensors = {}
         self._schedule_thread = None
@@ -109,6 +110,15 @@ class MainController(object):
         return self._configs
 
     @property
+    def current_config(self):
+        """Return the currently selected configuration."""
+        return self._current_config
+
+    def select_config(self, config_name):
+        """."""
+        self._current_config = self.configs[config_name]
+
+    @property
     def pumps(self):
         """Return a list of all registered pumps."""
         return self._pumps.values()
@@ -163,7 +173,6 @@ class MainController(object):
 
     def quit(self):
         """Quit pyrigate."""
-        log('Cancelling remaining tasks', verbosity=2)
         self.cancel_tasks()
         gpio.cleanup()
         log('Quitting pyrigate')
@@ -174,32 +183,41 @@ class MainController(object):
 
     def schedule_tasks(self):
         """Schedule status reports, watering plans etc."""
-        if settings['send_status_report']:
-            log('Scheduling status report', verbosity=2)
-            schedule.every().saturday.at('10:00').do(self.send_status_report)
-
         # Schedule according to the current plant configuration
-        config = self.current_config
+        if not self.current_config:
+            warn('No configuration selected, no schedules started')
+            return
 
-        watering_job = WateringJob(config['scheme'])
-        watering_job.schedule()
-        report_job = StatusReportJob(settings)
-        report_job.schedule()
+        config = self.configs['Serrano']
+        # config = self.current_config
+        # print(config)
+
+        # watering_job = WateringJob(config['scheme'])
+        # watering_job.schedule()
+        # report_job = StatusReportJob(settings)
+        # report_job.schedule()
 
         class TestJob(pyrigate.jobs.job.Job):
             def schedule(self):
-                schedule.every(5).seconds.do(self.do)
+                schedule.every(3).seconds.do(self.do)
 
             def do(self):
-                print('Hello')
+                log('Hello from TestJob')
+
+        job = TestJob()
+        job.schedule()
+
+        # if settings['status_updates']:
+        report_job = StatusReportJob(settings['status_frequency'])
+        report_job.schedule()
 
         self._schedule_thread = ScheduleThread(1)
-        self._schedule_thread.run()
+        self._schedule_thread.start()
 
-        log("Scheduling configuration '{0}'".format(self.current_config.name),
-            verbosity=2)
+        log("Scheduling configuration '{0}'".format(config.name), verbosity=2)
 
     def cancel_tasks(self):
         """Cancel all running plant monitoring tasks."""
         if self._schedule_thread:
+            log('Cancelling remaining tasks', verbosity=2)
             self._schedule_thread.cancel()
