@@ -123,7 +123,7 @@ class CommandInterpreter(cmd.Cmd, object):
                     settings['email']['subscribers'],
                     'Subject: Test\nThis is a test mail sent from pyrigate',
                     server='localhost',
-                    port=settings['email']['port']
+                    port=25
                 )
             except TimeoutError:
                 output("Operation timed out...")
