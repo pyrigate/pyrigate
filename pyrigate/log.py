@@ -62,6 +62,10 @@ def setup_logging():
                         style='{',
                         level=logging.NOTSET)
 
+    # Disable logging from the schedule library by allowing only critical
+    # level messages (it currently emits only info level)
+    logging.getLogger('schedule').setLevel(logging.CRITICAL)
+
 
 # Create a logger object with our adapter to be used in this module
 logger = NewStyleFormatAdapter(logging.getLogger())
