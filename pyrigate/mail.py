@@ -77,8 +77,8 @@ def send_mail(subject, sender, receivers, message, attachments=None,
     mime['Date'] = formatdate(localtime=True)
 
     smtp = None
-    server = server if server else settings['email']['server']
-    port = port if port else settings['email']['port']
+    server = server or settings['email']['server']
+    port = port or settings['email']['port']
 
     try:
         if server == 'localhost':
