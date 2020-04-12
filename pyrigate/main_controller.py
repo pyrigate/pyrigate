@@ -121,7 +121,7 @@ class MainController(object):
     @property
     def pumps(self):
         """Return a list of all registered pumps."""
-        return self._pumps.values()
+        return self._pumps
 
     def get_pump(self, name):
         """Return a pump by name or None."""
