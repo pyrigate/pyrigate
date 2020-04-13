@@ -50,7 +50,7 @@ def print_dict(dictionary,
     _print_dict(dictionary, msg_format, indent, buffer=buffer)
 
 
-class CommandInterpreter(cmd.Cmd, object):
+class CommandInterpreter(cmd.Cmd):
 
     """Interpreter for user-entered commands."""
 
