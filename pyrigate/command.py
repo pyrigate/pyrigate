@@ -129,7 +129,13 @@ class CommandInterpreter(cmd.Cmd):
                 output("Operation timed out...")
 
     def do_pump(self, line):
-        """Pump a specfic amount (dl, cm, ml etc.)."""
+        """Pump a specfic amount (dl, cm, ml etc.).
+
+        pump <name> <amount>
+
+        You can also use 'on' and 'off' to control the pump.
+
+        """
         args = self.expect_args('pump', line, 2)
 
         if args:
