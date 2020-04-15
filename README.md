@@ -25,18 +25,20 @@ $ python setup.py install
 
 Below is a diagram of the current hardware setup and a full list of parts.
 
-* [Relay](https://elextra.dk/details/H16117/5v-relaemodul-m-optokobler-til-arduino-2-kanals) (prevents current flyback that could fry the Raspberry Pi board)
-* [5-12V self-priming water pump](https://www.ebay.com/itm/172845971977)
-* [4mm silicone tube](https://www.ebay.com/itm/142324532992)
-* [A universal power adpater](https://elextra.dk/details/H26063/universal-netadapter-3-12vdc-18w-15a-usb-6-stik)
+* Relay (prevents current flyback that could fry the Raspberry Pi board)
+* 5-12V self-priming water pump
+* 2 x 4mm silicone tube
+* A universal power adpater
 * Water tank or some other container
 * Jumper wires
+
+Future hardware:
 * Moisture sensor (optional)
 * Water level sensor (optional)
 
 ## TODO
 
-- [ ] Test water pump operation
+- [x] Test water pump operation
 - [ ] Test email system
 - [ ] Test water level sensor
 - [ ] Test moisture sensor
@@ -48,7 +50,7 @@ There are many similar projects which were an inspiration for this project.
 * [Chili irrigation system with webhooks](https://blog.serverdensity.com/automatically-watering-your-plants-with-sensors-a-pi-and-webhooks/)
 * [TechRadar article](http://www.techradar.com/how-to/computing/how-to-automatically-water-your-plants-with-the-raspberry-pi-1315059)
 * [PiPlanter](http://www.esologic.com/piplanter-a-plant-growth-automator/)
-* [Aquaponics](https://github.com/matthewh415/PiPonics)
+* [PiPonics](https://github.com/matthewh415/PiPonics)
 * [Solar-powered water bot](https://github.com/mistylackie/solar-water-bot)
 * [pleasetakecareofmyplant](https://github.com/tylerjaywood/pleasetakecareofmyplant)
 * [Plant Friends](http://dicksonchow.com/plant-friends/)
