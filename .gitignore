@@ -4,6 +4,8 @@
 *.html
 *.egg-info/
 .Python
+.DS_Store
+.mypy_cache/
 test_pump.py
 build/
 dist/
