@@ -3,9 +3,9 @@
 
 """."""
 
+import schedule
 from pyrigate.jobs import Job
 from pyrigate.log import warn
-import threading
 
 
 class WateringJob(Job):
