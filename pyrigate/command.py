@@ -10,7 +10,7 @@ import shlex
 import pyrigate
 import pyrigate.gpio as gpio
 import pyrigate.mail
-from pyrigate.log import output
+from pyrigate.log import output, warn
 from pyrigate.user_settings import settings
 
 
@@ -140,6 +140,11 @@ class CommandInterpreter(cmd.Cmd):
 
         if args:
             pump = self._controller.get_pump(args[0])
+
+            if not pump:
+                warn('No pump with that name')
+                return
+
             cmd = args[1].lower()
 
             if cmd == 'on':
