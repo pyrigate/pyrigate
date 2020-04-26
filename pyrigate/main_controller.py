@@ -22,7 +22,7 @@ from pyrigate.sensor import Sensor
 from pyrigate.user_settings import settings
 
 
-class MainController(object):
+class MainController:
     """Main controller for pyrigate."""
 
     def __init__(self, args={}):

@@ -18,8 +18,7 @@ _UNIT_CONVERSIONS = {
 }
 
 
-class Pump(object):
-
+class Pump:
     """Water pump controller class."""
 
     @classmethod

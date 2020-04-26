@@ -12,7 +12,7 @@ class ConfigError(Exception):
     pass
 
 
-class PlantConfiguration(object):
+class PlantConfiguration:
 
     """Light-weight configuration class for plants.
 

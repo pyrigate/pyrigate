@@ -12,7 +12,7 @@ from pyrigate.default_settings import default_settings
 from pyrigate.user_settings import user_settings
 
 
-class Settings(object):
+class Settings:
     """Light-weight settings class for general pyrigate settings.
 
     Allows for dot access to settings:
