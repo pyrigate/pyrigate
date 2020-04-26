@@ -95,7 +95,7 @@ def all_versions():
     if gpio.mocked():
         msg += '(mocked)'
     else:
-        msg += '{2} ({3})'.format(specs['version'], specs['model'])
+        msg += '{0} ({1})'.format(specs['version'], specs['model'])
 
     return msg.format(__version__,
                       '.'.join([str(v) for v in sys.version_info[:3]]))

@@ -39,7 +39,9 @@ class Pump:
         self.water_level_sensor = water_level_sensor
 
         # This pin is going to output something (controlling the pump)
-        gpio.setup(pin, gpio.OUTPUT)
+        gpio.setup(pin, gpio.OUT)
+
+        self.deactivate()
 
     @property
     def level(self):
@@ -90,11 +92,11 @@ class Pump:
 
     def activate(self):
         """Activate the pump."""
-        gpio.output(self.pin, gpio.HIGH)
+        gpio.output(self.pin, gpio.LOW)
 
     def deactivate(self):
         """Deactivate the pump."""
-        gpio.output(self.pin, gpio.LOW)
+        gpio.output(self.pin, gpio.HIGH)
 
     def pump(self, amount):
         """Pump some amount of water."""

@@ -30,8 +30,10 @@ except ImportError:
     SETUP_CPUINFO_FAIL = 4
     SETUP_NOT_RPI_FAIL = 5
 
-    INPUT = 1
-    OUTPUT = 0
+    BCM = 11
+
+    IN = 1
+    OUT = 0
     ALT0 = 4
 
     HIGH = 1
@@ -86,10 +88,5 @@ def init():
     if mocked():
         log('Not on a raspberry pi, mocking GPIO functionality')
     else:
-        code = setup()
-
-        if code != SETUP_OK:
-            error('Failed to setup up GPIO pins (code: {0})', code)
-
         setmode(BCM)
         log('GPIO interface initialised', verbosity=2)
