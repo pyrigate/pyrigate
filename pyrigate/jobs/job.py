@@ -3,20 +3,25 @@
 
 """Base class for all jobs."""
 
+import schedule
 import threading
 
 
 class Job:
     """A periodic job."""
 
-    _FREQUENCIES = ('daily', 'weekly', 'monthly', 'yearly')
-
-    def __init__(self, frequency):
-        if not self.is_valid_frequency(frequency):
-            raise ValueError("Invalid frequency '{0}'".format(frequency))
-
-        self._frequency = frequency
+    def __init__(self):
+        self._runs = 0
         self._event = threading.Event()
+
+    def schedule(self):
+        """Schedule this job."""
+        raise NotImplementedError()
+
+    @property
+    def runs(self):
+        """How many times this job has run."""
+        self._runs
 
     @property
     def frequency(self):
@@ -32,6 +37,6 @@ class Job:
         """Check if a frequency string is valid."""
         return frequency in self._FREQUENCIES
 
-    def do(self):
+    def task(self):
         """Execute the job."""
         raise NotImplementedError()
