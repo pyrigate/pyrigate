@@ -54,22 +54,6 @@ class PlantConfiguration:
     def scheme(self):
         return self._config['scheme']
 
-    @property
-    def amount(self):
-        return self._config['amount']
-
-    @property
-    def frequency(self):
-        return self._config['frequency']
-
-    @property
-    def per(self):
-        return self._config['per']
-
-    @property
-    def times(self):
-        return self._config['times']
-
     def __getitem__(self, key):
         return self._config[key]
 
