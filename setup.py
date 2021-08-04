@@ -17,7 +17,7 @@ def get_version(filename):
 requirements = [
     'colorise',
     'docopt',
-    'schedule',
+    'schedule>=1.1.0',
     'schema'
 ]
 
