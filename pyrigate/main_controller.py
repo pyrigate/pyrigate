@@ -64,12 +64,12 @@ class MainController:
 
                         self._configs[config.name] = config
                     except schema.SchemaError as ex:
-                        errors = [e for e in ex.autos + ex.errors if e]
-
-                        log("Config '{0}' from '{1}': "
-                            "{{fg=red,bold}}✗{{reset}} "
-                            "(reason: {2})", config.name, full_path,
-                            ','.join(errors))
+                        log(
+                            "Config from '{0}': {{fg=red,bold}}✗{{reset}} "
+                            "({1})",
+                            full_path,
+                            ex
+                        )
                     except json.decoder.JSONDecodeError as ex:
                         log("Config '{0}' from '{1}': "
                             "{{fg=red,bold}}✗{{reset}} "
