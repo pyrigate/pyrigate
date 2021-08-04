@@ -23,6 +23,7 @@ class PlantConfiguration:
 
     def __init__(self, path=None):
         """Initialise a configuration, optionally reading from a file."""
+        self._path = path
         self._config = {}
         self.load(path)
 
@@ -34,6 +35,8 @@ class PlantConfiguration:
     def load(self, path):
         """Load a plant configuration from a file."""
         if path:
+            self._path = path
+
             with open(path) as fh:
                 self._config =\
                     plant_configuration_schema.validate(json.load(fh))
@@ -41,6 +44,10 @@ class PlantConfiguration:
     @property
     def valid(self):
         return bool(self._config)
+
+    @property
+    def path(self):
+        return self._path
 
     @property
     def name(self):
