@@ -39,6 +39,9 @@ values = {
     # Send status updates with this frequency
     'status_frequency': 'weekly',
 
+    # Automatically schedule all configurations on start-up
+    'autoschedule': True,
+
     # Email subconfiguration
     'email': {
         # The mail to send notifications from

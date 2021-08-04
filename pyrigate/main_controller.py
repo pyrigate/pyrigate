@@ -156,7 +156,10 @@ class MainController:
         if not self.start():
             self.quit()
             return
-        # self.schedule_tasks()
+
+        if settings['autoschedule']:
+            log('Autoscheduling...')
+            self.schedule_tasks()
 
         log('Running pyrigate')
         output("Type 'help' for information")
