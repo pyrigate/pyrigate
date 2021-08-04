@@ -301,6 +301,23 @@ class CommandInterpreter(cmd.Cmd):
         else:
             output("Unknown arg '{}'".format(arg))
 
+    def do_jobs(self, line):
+        """List all running jobs."""
+        jobs = self._controller.jobs
+
+        if not jobs:
+            output('No running jobs')
+        else:
+            for jobname in jobs:
+                job = jobs[jobname]
+
+                output(
+                    "Job '{0}' runs {1} (runs: {2})",
+                    jobname,
+                    job.description,
+                    job.runs
+                )
+
     def do_quit(self, line):
         """Quit pyrigate."""
         raise KeyboardInterrupt

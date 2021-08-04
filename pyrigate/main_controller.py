@@ -14,7 +14,7 @@ import pyrigate.command
 import pyrigate.gpio as gpio
 from pyrigate.config import ConfigError, PlantConfiguration
 from pyrigate.decorators import configurable
-from pyrigate.jobs import Job, StatusReportJob, WateringJob
+from pyrigate.jobs import Job, StatusReportStdoutJob, WateringJob
 from pyrigate.log import setup_logging, error, log, output, warn
 from pyrigate.pump import Pump
 from pyrigate.schedule_thread import ScheduleThread
@@ -33,6 +33,7 @@ class MainController:
         self._pumps = {}
         self._sensors = {}
         self._schedule_thread = None
+        self._jobs = {}
 
         if self._args['-v'] > 0:
             settings['verbosity'] = self._args['-v']
@@ -136,6 +137,10 @@ class MainController:
         """Return a sensor by name or None."""
         return self.sensors.get(name, None)
 
+    @property
+    def jobs(self):
+        return self._jobs
+
     def start(self):
         """Start the main controller and the event loop."""
         setup_logging()
@@ -183,38 +188,12 @@ class MainController:
 
     def schedule_tasks(self):
         """Schedule status reports, watering plans etc."""
-        # Schedule according to the current plant configuration
-        if not self.current_config:
-            warn('No configuration selected, no schedules started')
-            return
-
-        config = self.configs['Serrano']
-        # config = self.current_config
-        # print(config)
-
-        # watering_job = WateringJob(config['scheme'])
-        # watering_job.schedule()
-        # report_job = StatusReportJob(settings)
-        # report_job.schedule()
-
-        class TestJob(pyrigate.jobs.job.Job):
-            def schedule(self):
-                schedule.every(3).seconds.do(self.do)
-
-            def do(self):
-                log('Hello from TestJob')
-
-        job = TestJob()
-        job.schedule()
-
-        # if settings['status_updates']:
-        report_job = StatusReportJob(settings['status_frequency'])
-        report_job.schedule()
-
+        # Start the background schedule thread
         self._schedule_thread = ScheduleThread(1)
         self._schedule_thread.start()
 
-        log("Scheduling configuration '{0}'".format(config.name), verbosity=2)
+        for name in self.configs:
+            self._jobs[name] = WateringJob(self.configs[name])
 
     def cancel_tasks(self):
         """Cancel all running plant monitoring tasks."""
