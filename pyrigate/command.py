@@ -84,7 +84,6 @@ def print_dict(
 
 
 class CommandInterpreter(cmd.Cmd):
-
     """Interpreter for user-entered commands."""
 
     def __init__(self, controller, prompt='> '):
@@ -119,10 +118,10 @@ class CommandInterpreter(cmd.Cmd):
 
     def columnise(self, mapping):
         """Print dictionary keys and values in two columns."""
-        max_width = len(max(mapping, key=len))
+        max_width = max(10, len(max(mapping, key=len)))
 
         for key in mapping:
-            colorise.fprint('{{fg=white,bold}}{0:<{1}}:{{reset}} {2}'
+            colorise.fprint('{{fg=white,bold}}{0:<{1}} {{reset}} {2}'
                             .format(key, max_width, mapping[key]))
 
     def do_version(self, line):
@@ -227,10 +226,10 @@ class CommandInterpreter(cmd.Cmd):
         if not configs:
             output('No configurations loaded')
         else:
-            output('Found {0} configuration(s):', len(configs))
-
-            for config_name in configs:
-                output("    * {0}", config_name)
+            self.columnise({
+                config.name: config.description
+                for _, config in configs.items()
+            })
 
     def do_config(self, line):
         """List a configuration."""
@@ -240,7 +239,7 @@ class CommandInterpreter(cmd.Cmd):
             configs = self._controller.configs
 
             if arg in configs:
-                colorise.fprint(str(configs[arg]))
+                configs[arg].print()
             else:
                 print("Unknown plant configuration '{0}'".format(arg))
 
