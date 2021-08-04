@@ -14,40 +14,73 @@ from pyrigate.log import output, warn
 from pyrigate.user_settings import settings
 
 
-def print_dict(dictionary,
-               msg_format='{0}{{bold}}{1:<{2}}{{reset}}{3}{4:>{5}}',
-               indent='    ', buffer=' ' * 5):
+def print_dict(
+    dictionary,
+    name_format='{0}{{bold}}{1:<{2}}{{reset}}{3}',
+    value_format='{0:>{1}}',
+    indent='    ',
+    buffer=' ' * 5
+):
     """Recursively print a dictionary with indentation."""
-    def _print_dict(dictionary, msg_format, indent, lvl=0, buffer=' '):
+    def _print_dict(
+        dictionary,
+        name_format,
+        value_format,
+        indent,
+        lvl=0,
+        buffer=' '
+    ):
         l_indent = indent * lvl
 
         # Find the max key and value widths for proper alignment
         max_key_width = len(max(dictionary.keys(), key=len))
-        max_value_width = len(max(dictionary.values(),
-                              key=lambda v: len(str(v))))
+        max_value_width = len(
+            max(dictionary.values(), key=lambda v: len(str(v)))
+        )
 
         for key, value in dictionary.items():
+            if not value:
+                continue
+
             if isinstance(value, dict):
                 colorise.fprint(
                     '{0}{{bold}}{1}{{reset}}'.format(l_indent, key),
                     enabled=settings['colors']
                 )
-                _print_dict(value, indent, lvl=lvl+1, buffer=buffer)
+                _print_dict(
+                    value,
+                    name_format,
+                    value_format,
+                    indent,
+                    lvl=lvl+1,
+                    buffer=buffer
+                )
             elif isinstance(value, list):
                 colorise.fprint(
-                    msg_format.format(l_indent, key, max_key_width,
-                                     buffer, ', '.join(value),
-                                     max_value_width),
-                    enabled=settings['colors']
+                    name_format.format(
+                        l_indent,
+                        key,
+                        max_key_width,
+                        buffer
+                    ),
+                    enabled=settings['colors'],
+                    end=''
                 )
+                print(value_format.format(', '.join(value), max_value_width))
             else:
                 colorise.fprint(
-                    msg_format.format(l_indent, key, max_key_width,
-                                      buffer, value, max_value_width),
-                    enabled=settings['colors']
+                    name_format.format(
+                        l_indent,
+                        key,
+                        max_key_width,
+                        buffer
+                    ),
+                    enabled=settings['colors'],
+                    end=''
                 )
+                print(value_format.format(value, max_value_width))
 
-    _print_dict(dictionary, msg_format, indent, buffer=buffer)
+    _print_dict(dictionary, name_format, value_format, indent, buffer=buffer)
 
 
 class CommandInterpreter(cmd.Cmd):
