@@ -268,7 +268,7 @@ class CommandInterpreter(cmd.Cmd):
             for key, value in pyrigate.rpi_specs().items():
                 print("{0:<20} {1}".format(key, value))
 
-    def do_read(self, line):
+    def do_read_pin(self, line):
         """Read a value from a gpio input pin."""
         arg = self.expect_args('read', line, 1)
 
@@ -279,13 +279,13 @@ class CommandInterpreter(cmd.Cmd):
                 pin = int(arg)
                 output("Read value '{0}' from pin '{1}'", gpio.input(pin), pin)
 
-    def do_write(self, line):
+    def do_write_pin(self, line):
         """Write a HIGH or LOW value to a gpio output pin."""
         args = self.expect_args('write', line, 2)
 
         if args:
             if gpio.mocked():
-                output('Cannot read pin, gpio access is being mocked')
+                output('Cannot write pin, gpio access is being mocked')
             else:
                 pin = int(args[0])
                 value = int(args[1])
