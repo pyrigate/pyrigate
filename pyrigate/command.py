@@ -258,10 +258,15 @@ class CommandInterpreter(cmd.Cmd):
 
             output("Selected plant configuration '{0}'".format(arg))
 
-    def do_specs(self, line):
+    def do_rpi_specs(self, line):
         """Print the Raspberry Pi's specifications."""
-        for key, value in pyrigate.rpi_specs().items():
-            print("{0:<20} {1}".format(key, value))
+        if gpio.mocked():
+            output(
+                'Cannot get Raspberry Pi specs, gpio access is being mocked'
+            )
+        else:
+            for key, value in pyrigate.rpi_specs().items():
+                print("{0:<20} {1}".format(key, value))
 
     def do_read(self, line):
         """Read a value from a gpio input pin."""
