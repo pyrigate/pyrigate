@@ -186,7 +186,13 @@ class CommandInterpreter(cmd.Cmd):
                 pump.deactivate()
                 output("Pump '{0}' deactivated".format(pump.name))
             else:
-                pump.pump(args[1])
+                try:
+                    pump.pump(float(args[1]))
+                except ValueError:
+                    warn(
+                        "Cannot convert '{0}' to a floating-point value"
+                        .format(args[1])
+                    )
 
     def do_pumps(self, line):
         """Show all loaded pumps."""
