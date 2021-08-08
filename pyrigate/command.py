@@ -12,75 +12,7 @@ import pyrigate.gpio as gpio
 import pyrigate.mail
 from pyrigate.log import output, warn
 from pyrigate.user_settings import settings
-
-
-def print_dict(
-    dictionary,
-    name_format='{0}{{bold}}{1:<{2}}{{reset}}{3}',
-    value_format='{0:>{1}}',
-    indent='    ',
-    buffer=' ' * 5
-):
-    """Recursively print a dictionary with indentation."""
-    def _print_dict(
-        dictionary,
-        name_format,
-        value_format,
-        indent,
-        lvl=0,
-        buffer=' '
-    ):
-        l_indent = indent * lvl
-
-        # Find the max key and value widths for proper alignment
-        max_key_width = len(max(dictionary.keys(), key=len))
-        max_value_width = len(
-            max(dictionary.values(), key=lambda v: len(str(v)))
-        )
-
-        for key, value in dictionary.items():
-            if not value:
-                continue
-
-            if isinstance(value, dict):
-                colorise.fprint(
-                    '{0}{{bold}}{1}{{reset}}'.format(l_indent, key),
-                    enabled=settings['colors']
-                )
-                _print_dict(
-                    value,
-                    name_format,
-                    value_format,
-                    indent,
-                    lvl=lvl+1,
-                    buffer=buffer
-                )
-            elif isinstance(value, list):
-                colorise.fprint(
-                    name_format.format(
-                        l_indent,
-                        key,
-                        max_key_width,
-                        buffer
-                    ),
-                    enabled=settings['colors'],
-                    end=''
-                )
-                print(value_format.format(', '.join(value), max_value_width))
-            else:
-                colorise.fprint(
-                    name_format.format(
-                        l_indent,
-                        key,
-                        max_key_width,
-                        buffer
-                    ),
-                    enabled=settings['colors'],
-                    end=''
-                )
-                print(value_format.format(value, max_value_width))
-
-    _print_dict(dictionary, name_format, value_format, indent, buffer=buffer)
+from pyrigate.utils.printing import print_dict, print_columns, print_list
 
 
 class CommandInterpreter(cmd.Cmd):
@@ -232,10 +164,16 @@ class CommandInterpreter(cmd.Cmd):
         if not configs:
             output('No configurations loaded')
         else:
-            self.columnise({
-                config.name: config.description
-                for _, config in configs.items()
-            })
+            print_columns(
+                [
+                    [
+                        name,
+                        config.path,
+                        self._controller.is_job_running(name),
+                    ] for name, config in configs.items()
+                ],
+                headers=['Name', 'Path', 'Running?']
+            )
 
     def do_config(self, line):
         """List a configuration."""
@@ -245,7 +183,17 @@ class CommandInterpreter(cmd.Cmd):
             configs = self._controller.configs
 
             if arg in configs:
-                configs[arg].print()
+                config = configs[arg]
+
+                print_list([
+                    ('Name', config.name),
+                    ('Description', config.description),
+                    ('Path', config.path),
+                    ('Pump', config.scheme['pump']),
+                    ('Amount', config.scheme['amount']),
+                    ('Schedule', config.schedule_description),
+                    ('Running?', self._controller.is_job_running(arg)),
+                ])
             else:
                 print("Unknown plant configuration '{0}'".format(arg))
 
