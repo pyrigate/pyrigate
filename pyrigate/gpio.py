@@ -9,7 +9,7 @@ details.
 
 """
 
-from pyrigate.log import error, log
+from pyrigate.log import log
 
 try:
     from RPi.GPIO import *
