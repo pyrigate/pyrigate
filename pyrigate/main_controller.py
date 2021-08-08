@@ -201,7 +201,7 @@ class MainController:
         self._schedule_thread.start()
 
         for name in self.configs:
-            self._jobs[name] = WateringJob(self.configs[name])
+            self._jobs[name] = WateringJob(self, self.configs[name])
 
     def cancel_tasks(self):
         """Cancel all running plant monitoring tasks."""
