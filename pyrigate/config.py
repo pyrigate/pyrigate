@@ -5,6 +5,7 @@
 
 import json
 import os
+
 from pyrigate.validation import plant_configuration_schema
 
 
@@ -24,6 +25,7 @@ class PlantConfiguration:
     def __init__(self, path=None):
         """Initialise a configuration, optionally reading from a file."""
         self._path = path
+        self._schedule_description = ''
         self._config = {}
         self.load(path)
 
@@ -41,6 +43,32 @@ class PlantConfiguration:
                 self._config =\
                     plant_configuration_schema.validate(json.load(fh))
 
+                self._schedule_description =\
+                    self._create_description(self._config)
+
+                return True
+
+        return False
+
+    def _create_description(self, config):
+        """Create a human-readable description of the config's schedule."""
+        descriptions = []
+
+        for when in config['scheme']['when']:
+            description = []
+
+            if 'on' in when:
+                description.append(f"on {when['on']}s at")
+            else:
+                description.append(f"each {when['each']} at")
+
+            for time in when['at']:
+                description.append(time)
+
+            descriptions.append(' '.join(description))
+
+        return ' and '.join(descriptions)
+
     @property
     def valid(self):
         return bool(self._config)
@@ -50,12 +78,16 @@ class PlantConfiguration:
         return self._path
 
     @property
+    def description(self):
+        return self._config['description']
+
+    @property
     def name(self):
         return self._config['name']
 
     @property
-    def description(self):
-        return self._config['description']
+    def schedule_description(self):
+        return self._schedule_description
 
     @property
     def scheme(self):
@@ -66,14 +98,3 @@ class PlantConfiguration:
 
     def __setitem__(self, key, value):
         self._config[key] = value
-
-    def __str__(self):
-        result = []
-        max_width = max(len(str(v)) for v in self._config.values())
-        fmt = '{{bold}}{0:<20} {{reset}}{1:>{2}}'
-
-        for k, v in self._config.items():
-            line = fmt.format(k, str(v), max_width)
-            result.append(line)
-
-        return os.linesep.join(result)
