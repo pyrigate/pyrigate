@@ -137,8 +137,13 @@ class MainController:
         """Return a sensor by name or None."""
         return self.sensors.get(name, None)
 
+    def is_job_running(self, job_name):
+        """Check if a job is running or not."""
+        return job_name in self.jobs
+
     @property
     def jobs(self):
+        """Returns all currently running jobs."""
         return self._jobs
 
     def start(self):
