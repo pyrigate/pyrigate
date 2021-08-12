@@ -1,10 +1,15 @@
 {
-    "name":        "Serrano",
+    "name": "Serrano",
     "description": "Watering settings for Serrano chili plants.",
-    "scheme":      "auto",
-    "amount":      "0.1dl",
-    "frequency":   2,
-    "per":         "day",
-    "times":       ["09:00", "20:00"],
-    "url":         "https://en.wikipedia.org/wiki/Serrano_pepper"
+    "url": "https://en.wikipedia.org/wiki/Serrano_pepper",
+    "scheme": {
+      "pump": "main",
+      "amount":      "0.1dl",
+      "when": [
+        {
+          "each": "day",
+          "at": ["09:00", "20:00"]
+        }
+      ]
+    }
 }
