@@ -11,6 +11,7 @@ class Job:
     """A periodic job."""
 
     def __init__(self):
+        self._running = False
         self._runs = 0
         self._event = threading.Event()
 
@@ -18,24 +19,24 @@ class Job:
         """Schedule this job."""
         raise NotImplementedError()
 
+    def stop(self):
+        """Stop this job."""
+        schedule.cancel_job(self)
+        self._running = False
+
+    @property
+    def running(self):
+        return self._running
+
     @property
     def runs(self):
         """How many times this job has run."""
         self._runs
 
     @property
-    def frequency(self):
-        """The frequency with which this job is executed."""
-        return self._frequency
-
-    @classmethod
-    def from_string(cls, s):
-        """."""
-        pass
-
-    def is_valid_frequency(self, frequency):
-        """Check if a frequency string is valid."""
-        return frequency in self._FREQUENCIES
+    def tag(self):
+        """The tag associated with this job."""
+        raise NotImplementedError()
 
     def task(self):
         """Execute the job."""

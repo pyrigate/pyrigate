@@ -11,6 +11,8 @@ from pyrigate.units.parse import parse_unit
 class WateringJob(Job):
     """A pyrigate watering job."""
 
+    JOB_TAG = 'watering-job'
+
     def __init__(self, controller, config=None):
         super().__init__()
         self._description = ''
@@ -36,7 +38,9 @@ class WateringJob(Job):
             for time in when['at']:
                 job = getattr(job, 'at')(time)
 
-            job.do(self.task, amount)
+            job.do(self.task, amount).tag(WateringJob.JOB_TAG)
+
+        self._running = True
 
     def _schedule_on_type(self, on):
         return getattr(schedule.every(), on)
@@ -48,6 +52,10 @@ class WateringJob(Job):
             return schedule.every(interval=52).weeks
         else:
             return getattr(schedule.every(), each)
+
+    @property
+    def tag(self):
+        return WateringJob.JOB_TAG
 
     def task(self, amount_string):
         pump = self._controller.get_pump(self._config.scheme['pump'])

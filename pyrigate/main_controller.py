@@ -33,7 +33,7 @@ class MainController:
         self._pumps = {}
         self._sensors = {}
         self._schedule_thread = None
-        self._jobs = {}
+        self._config_jobs = {}
 
         if self._args['-v'] > 0:
             settings['verbosity'] = self._args['-v']
@@ -139,12 +139,44 @@ class MainController:
 
     def is_job_running(self, job_name):
         """Check if a job is running or not."""
-        return job_name in self.jobs
+        return job_name in self.all_jobs and self.all_jobs[job_name].running
+
+    def start_job(self, job_name):
+        """."""
+        job = self._config_jobs.get(job_name)
+
+        if job:
+            if job.running:
+                return False
+            else:
+                job.schedule(self.configs[job_name])
+                return True
+
+        self._config_jobs[job_name] = WateringJob(self, self.configs[job_name])
+        return True
+
+    def stop_job(self, job_name):
+        """."""
+        job = self._config_jobs.get(job_name)
+
+        if job:
+            if job.running:
+                job.stop()
+                return True
+            else:
+                return False
+
+        return False
 
     @property
-    def jobs(self):
-        """Returns all currently running jobs."""
-        return self._jobs
+    def config_jobs(self):
+        """Return all currently running plant configuration jobs."""
+        return self._config_jobs
+
+    @property
+    def all_jobs(self):
+        """Return all types of jobs."""
+        return self.config_jobs
 
     def start(self):
         """Start the main controller and the event loop."""
@@ -201,7 +233,7 @@ class MainController:
         self._schedule_thread.start()
 
         for name in self.configs:
-            self._jobs[name] = WateringJob(self, self.configs[name])
+            self._config_jobs[name] = WateringJob(self, self.configs[name])
 
     def cancel_tasks(self):
         """Cancel all running plant monitoring tasks."""

@@ -240,36 +240,51 @@ class CommandInterpreter(cmd.Cmd):
                            gpio.LOW, gpio.HIGH)
 
     def do_schedule(self, line):
-        """Start all scheduled jobs such as the current plant configuration.
+        """Schedule a config or all jobs.
 
-        > schedule [start | stop]
+        > schedule (start | stop) (<config_name> | 'all')
 
         """
-        arg = self.expect_args('schedule', line, 1)
+        action, config_name = self.expect_args('schedule', line, 2)
 
-        if arg == 'start':
-            self._controller.schedule_tasks()
-        elif arg == 'stop':
-            self._controller.cancel_tasks()
+        if action == 'start':
+            if config_name == 'all':
+                self._controller.schedule_tasks()
+            else:
+                did_start = self._controller.start_job(config_name)
+
+                if did_start:
+                    output(f"Started job '{config_name}'")
+                else:
+                    output('Job already running')
+        elif action == 'stop':
+            if config_name == 'all':
+                self._controller.cancel_tasks()
+            else:
+                did_stop = self._controller.stop_job(config_name)
+
+                if did_stop:
+                    output(f"Stopped job '{config_name}'")
+                else:
+                    output('Job does not exist or is not running')
         else:
-            output("Unknown arg '{}'".format(arg))
+            output(f"Unknown action '{action}'")
 
     def do_jobs(self, line):
         """List all running jobs."""
-        jobs = self._controller.jobs
+        jobs = self._controller.all_jobs
 
         if not jobs:
             output('No running jobs')
         else:
-            for jobname in jobs:
-                job = jobs[jobname]
-
-                output(
-                    "Job '{0}' runs {1} (runs: {2})",
-                    jobname,
-                    job.description,
-                    job.runs
-                )
+            print_columns(
+                [
+                    [name, job.tag, job.runs, job.running, job.description]
+                    for name, job in jobs.items()
+                ],
+                headers=['Name', 'Tag', 'Runs', 'Running?', 'Schedule'],
+                padding=6,
+            )
 
     def do_quit(self, line):
         """Quit pyrigate."""
