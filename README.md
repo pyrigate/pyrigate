@@ -1,16 +1,20 @@
-# pyrigate v0.1.0 💦🌱
+<div>
+    <img src="pyrigate-logo.png" align="left" width="22%" style="margin-right:40px" />
+</div>
+
+# pyrigate 💦🌱
+#### v0.1.0
 
 [![Supported python versions](https://img.shields.io/badge/python-3.4%20%7C%203.5%20%7C%203.6%20%7C%203.7-blue.svg)](https://shields.io/)
 
+<div style="margin-top:40px" />
+
 Water your plants with an automated irrigation system! This is an ongoing
-project under development.
+project under development. There is also a [companion mobile
+app](https://www.github.com/pyrigate/mobile-app) under development.
 
 **DISCLAIMER**: I am not an electrical engineer or anything of the sort, use
 the instructions and code at your own risk.
-
-Progress pic:
-
-![Progress pic](/coming_soon.png)
 
 ## Installation
 
@@ -23,7 +27,7 @@ $ python setup.py install
 
 ## Current Setup
 
-Below is a diagram of the current hardware setup and a full list of parts.
+Below is a list of hardware parts.
 
 * Relay (prevents current flyback that could fry the Raspberry Pi board)
 * 5-12V self-priming water pump
@@ -43,7 +47,7 @@ Future hardware:
 - [ ] Test water level sensor
 - [ ] Test moisture sensor
 
-## Similar Projects
+### Similar Projects
 
 There are many similar projects which were an inspiration for this project.
 
