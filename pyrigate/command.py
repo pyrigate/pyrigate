@@ -165,14 +165,8 @@ class CommandInterpreter(cmd.Cmd):
             output('No configurations loaded')
         else:
             print_columns(
-                [
-                    [
-                        name,
-                        config.path,
-                        self._controller.is_job_running(name),
-                    ] for name, config in configs.items()
-                ],
-                headers=['Name', 'Path', 'Running?']
+                [[name, config.path] for name, config in configs.items()],
+                headers=['Name', 'Path']
             )
 
     def do_config(self, line):
