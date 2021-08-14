@@ -102,6 +102,10 @@ class Pump:
         """Pump some amount of water."""
         self.pump_timed(float(amount) / self.flow_rate)
 
+    def pump_unit(self, amount, unit):
+        """Pump some amount of in some unit."""
+        self.pump(convert_units(amount, unit, 'ml'))
+
     def pump_timed(self, duration):
         """Pump water for some seconds."""
         if self.level <= 0:
